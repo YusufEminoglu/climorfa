@@ -1,0 +1,305 @@
+{
+  "schema_version": "climorfa_feature_sets.v1",
+  "date": "2026-06-15",
+  "project": "Izmir LCZ Deep Morphology / CLIMORFA",
+  "source_feature_matrix": "data/03_processed/grid_250m_model_features_v8.csv",
+  "source_diagnostics_report": "docs/methodology/feature_diagnostics_v8_2026-06-18.md",
+  "source_diagnostics_directory": "outputs/diagnostics/feature_diagnostics_v8_2026-06-18",
+  "model_intent": {
+    "primary": "LCZ-like morphology or audited climate-sensitive fabric classification",
+    "secondary": "LST and climate-response validation after morphology/fabric prediction",
+    "guardrail": "Do not use label, climate-response, QA, or direct spatial-index fields as ordinary predictors."
+  },
+  "targets": {
+    "weak_lcz_training_target": "lcz_weak_label",
+    "manual_audit_target_future": "audit_label",
+    "climate_response_or_validation_fields": [
+      "lst_c_median_mean",
+      "lst_c_median_std",
+      "lst_c_median_valid_px",
+      "lst_obs_count_mean",
+      "lst_obs_count_std",
+      "lst_obs_count_valid_px"
+    ]
+  },
+  "do_not_use_as_predictors": {
+    "id_fields": [
+      "grid_id"
+    ],
+    "spatial_index_fields": [
+      "row_id",
+      "col_id"
+    ],
+    "administrative_or_sampling_fields": [
+      "district",
+      "built_intensity_bin"
+    ],
+    "weak_label_fields": [
+      "lcz_weak_label",
+      "lcz_weak_confidence",
+      "lcz_probability_mean",
+      "lcz_valid_pixels",
+      "lcz_mixed_flag"
+    ],
+    "climate_response_fields": [
+      "lst_c_median_mean",
+      "lst_c_median_std",
+      "lst_c_median_valid_px",
+      "lst_obs_count_mean",
+      "lst_obs_count_std",
+      "lst_obs_count_valid_px"
+    ],
+    "qa_or_coverage_patterns": [
+      "*_valid_px",
+      "*_valid_pixels",
+      "*_valid_buildings",
+      "*obs_count*",
+      "*uncertainty_valid*",
+      "*_buffer_area_m2",
+      "*_fua_area_m2",
+      "*_fua_coverage_share"
+    ]
+  },
+  "validation_fields": {
+    "spatial_block_candidates": [
+      "row_id",
+      "col_id",
+      "district",
+      "coastal_band"
+    ],
+    "leave_out_schemes": [
+      "spatial_block_cv",
+      "leave_district_out",
+      "leave_fabric_or_label_family_out"
+    ],
+    "sensitivity_units": [
+      "250m primary grid",
+      "500m sensitivity grid",
+      "125m deferred grid",
+      "400m/800m/1200m green-space 2SFCA network thresholds",
+      "legacy 250m/400m/800m Euclidean road-context buffers for supplementary comparison only"
+    ]
+  },
+  "feature_sets": {
+    "morphology_core_v1": [
+      "building_coverage_exact",
+      "building_density_exact_per_km2",
+      "floor_area_ratio_proxy",
+      "height_proxy_aw_mean_m",
+      "height_proxy_max_m",
+      "lowrise_1_2_area_share",
+      "midrise_3_5_area_share",
+      "upper_midrise_6_10_area_share",
+      "highrise_11_plus_area_share",
+      "dsm_elevation_m_std",
+      "dsm_elevation_m_range",
+      "morph_building_perimeter_density_m_per_ha",
+      "morph_building_area_gini",
+      "morph_building_compactness_aw_mean",
+      "morph_open_space_fragmentation_index"
+    ],
+    "morphology_review_v1": [
+      "dsm_elevation_m_mean",
+      "type_mesken_area_share",
+      "type_isyeri_area_share",
+      "type_kamu_area_share",
+      "underground_floor_aw_mean",
+      "morph_building_area_cv",
+      "morph_open_space_patch_density_per_ha",
+      "morph_open_space_largest_patch_share"
+    ],
+    "vegetation_structure_v1": [
+      "canopy_cover_gt2m_share",
+      "canopy_cover_gt5m_share",
+      "canopy_cover_gt10m_share",
+      "canopy_height_p95_m",
+      "canopy_volume_gt2m_proxy_m3_per_ha",
+      "canopy_height_sd_mean_m",
+      "s2_ndvi_mean"
+    ],
+    "coast_green_blue_v1": [
+      "coast_min_distance_m",
+      "coastal_2km_flag",
+      "coastal_5km_flag",
+      "s2_ndwi_mean",
+      "dw_water_prob_mean",
+      "worldcover_share_water",
+      "worldcover_share_tree_cover"
+    ],
+    "remote_spectral_v1": [
+      "s2_ndbi_mean",
+      "s2_ndvi_mean",
+      "s2_ndwi_mean"
+    ],
+    "remote_semantic_ablation_v1": [
+      "dw_bare_prob_mean",
+      "dw_built_prob_mean",
+      "dw_crops_prob_mean",
+      "dw_flooded_vegetation_prob_mean",
+      "dw_grass_prob_mean",
+      "dw_shrub_scrub_prob_mean",
+      "dw_trees_prob_mean",
+      "dw_water_prob_mean",
+      "worldcover_share_bare_sparse",
+      "worldcover_share_built_up",
+      "worldcover_share_cropland",
+      "worldcover_share_grassland",
+      "worldcover_share_shrubland",
+      "worldcover_share_tree_cover",
+      "worldcover_share_water",
+      "worldcover_share_wetland"
+    ],
+    "osm_proxy_context_ablation_v1": [
+      "osm_share_airport",
+      "osm_share_industrial_port",
+      "osm_share_commercial_retail",
+      "osm_share_institutional_public",
+      "osm_share_green_open",
+      "osm_share_blue_water",
+      "osm_share_transport_terminal",
+      "osm_share_military_quarry",
+      "osm_share_construction_brownfield",
+      "osm_special_infrastructure_flag",
+      "osm_green_blue_context_flag"
+    ],
+    "network_exact_v1": [
+      "road_density_exact_m_per_km2",
+      "network_intersection_density_per_km2",
+      "network_dead_end_density_per_km2",
+      "network_mean_endpoint_degree",
+      "road_orientation_entropy_norm",
+      "road_orientation_dominant_bin_share",
+      "road_presence_flag",
+      "network_intersection_presence_flag"
+    ],
+    "network_reach_context_v1": [
+      "network_reach_250m_road_density_m_per_km2",
+      "network_reach_400m_road_density_m_per_km2",
+      "network_reach_800m_road_density_m_per_km2",
+      "network_reach_250m_intersection_density_per_km2",
+      "network_reach_400m_intersection_density_per_km2",
+      "network_reach_800m_intersection_density_per_km2",
+      "network_reach_250m_orientation_entropy_norm",
+      "network_reach_400m_orientation_entropy_norm",
+      "network_reach_800m_orientation_entropy_norm",
+      "network_reach_250m_dead_end_density_per_km2",
+      "network_reach_400m_dead_end_density_per_km2",
+      "network_reach_800m_dead_end_density_per_km2"
+    ],
+    "network_reach_context_qa_v1": [
+      "network_reach_250m_fua_coverage_share",
+      "network_reach_400m_fua_coverage_share",
+      "network_reach_800m_fua_coverage_share"
+    ],
+    "network_reach_motorway_sensitivity_v1": [
+      "network_reach_250m_road_excl_motorway_density_m_per_km2",
+      "network_reach_400m_road_excl_motorway_density_m_per_km2",
+      "network_reach_800m_road_excl_motorway_density_m_per_km2",
+      "network_reach_250m_motorway_share_of_road_length",
+      "network_reach_400m_motorway_share_of_road_length",
+      "network_reach_800m_motorway_share_of_road_length"
+    ],
+    "green_space_2sfca_v1": [
+      "green_2sfca_800m_access_log1p"
+    ],
+    "green_space_2sfca_threshold_sensitivity_v1": [
+      "green_2sfca_400m_access_log1p",
+      "green_2sfca_1200m_access_log1p"
+    ],
+    "street_facing_morphology_v1": [
+      "street_frontage_continuity_proxy",
+      "street_frontage_gap_proxy",
+      "street_frontage_open_buffer_share",
+      "street_frontage_edge_m_per_road_km",
+      "street_frontage_building_density_per_buffer_ha"
+    ],
+    "block_permeability_experimental_v1": [
+      "block_permeability_network_proxy",
+      "block_permeability_street_open_network_proxy"
+    ]
+  },
+  "baseline_recipes": {
+    "baseline_a_morphology_only": [
+      "morphology_core_v1"
+    ],
+    "baseline_b_morphology_plus_vegetation": [
+      "morphology_core_v1",
+      "vegetation_structure_v1"
+    ],
+    "baseline_c_morphology_plus_green_blue_context": [
+      "morphology_core_v1",
+      "vegetation_structure_v1",
+      "coast_green_blue_v1"
+    ],
+    "baseline_d_full_proxy_context": [
+      "morphology_core_v1",
+      "vegetation_structure_v1",
+      "coast_green_blue_v1",
+      "remote_spectral_v1",
+      "remote_semantic_ablation_v1",
+      "osm_proxy_context_ablation_v1",
+      "network_exact_v1",
+      "green_space_2sfca_v1",
+      "street_facing_morphology_v1"
+    ]
+  },
+  "sensitivity_recipes": {
+    "network_reach_excluding_explicit_motorway": [
+      "network_reach_context_v1",
+      "network_reach_motorway_sensitivity_v1"
+    ],
+    "green_space_2sfca_thresholds": [
+      "green_space_2sfca_v1",
+      "green_space_2sfca_threshold_sensitivity_v1"
+    ],
+    "legacy_euclidean_road_context": [
+      "network_reach_context_v1"
+    ]
+  },
+  "imputation_and_encoding_policy": {
+    "building_floor_proxy": {
+      "diagnostic": "9,988 cells have no exact building footprint and therefore no area-weighted floor-count statistic.",
+      "policy": "Create a has_building flag before modelling. For grid-level vertical-intensity variables, zero-filled variants are acceptable only when documented as no-building cells; keep original NA-aware fields for sensitivity."
+    },
+    "canopy_height": {
+      "diagnostic": "Canopy NoData gaps are small relative to the study grid.",
+      "policy": "Use a canopy_data_available flag. Compare median-imputation-with-flag against dropping cells with missing canopy values."
+    },
+    "categorical_fields": {
+      "dominant_yapitip": "Encode missing as no_building_or_unknown if used in a review model, not in the first morphology-only baseline.",
+      "coastal_band": "Use for stratified summaries and sensitivity; prefer continuous coast distance in first predictor sets."
+    }
+  },
+  "collinearity_policy": {
+    "source": "outputs/diagnostics/feature_diagnostics_v7_2026-06-18/collinearity_groups_corr95.csv",
+    "rule": "For first baselines, use one representative from each abs(r) >= 0.95 group or report family-level ablations.",
+    "preferred_examples": {
+      "building_area_vs_coverage": "building_coverage_exact",
+      "building_count_vs_density": "building_density_exact_per_km2",
+      "floor_area_vs_far_vs_volume": "floor_area_ratio_proxy",
+      "floor_count_vs_height_proxy": "height_proxy_aw_mean_m",
+      "canopy_volume_raw_vs_per_ha": "canopy_volume_gt2m_proxy_m3_per_ha",
+      "coast_min_vs_centroid_distance": "coast_min_distance_m"
+    }
+  },
+  "features_to_build_next": [
+    "street_centrality_reach",
+    "network_circuity",
+    "block_permeability_topology_and_road_class_refinement",
+    "road_function_codebook_validation_for_ramps"
+  ],
+  "wording_guardrails": [
+    "Use floor-count, FAR, built-volume, and height proxy wording; do not call these measured building heights.",
+    "Use OSM as proxy functional context; do not call it official zoning or imar.",
+    "Use LST as response or validation, not as a predictor for LCZ-like morphology labels.",
+    "Report remote-sensing semantic predictors with ablation because they can overlap with weak LCZ label information.",
+    "Describe current network node/intersection fields as endpoint-derived proxies until a full topological network validation is added.",
+    "Do not use the legacy 250/400/800 m Euclidean centroid-buffer road-context fields in the primary full baseline; retain them only for supplementary comparison.",
+    "Describe green-space 2SFCA as an OSM and municipal-road-network accessibility proxy, not an official public-green-space or pedestrian-routing measure.",
+    "Use the 800 m green-space 2SFCA log1p field in the primary context baseline and keep raw m2/person values for descriptive reporting.",
+    "Describe street-frontage fields as road-buffer proxies, not cadastral frontage or measured setbacks.",
+    "Treat current block-permeability fields as experimental and exclude them from first baselines after the 2026-06-18 visual QA failure.",
+    "Report explicit motorway sensitivity for road-density reach metrics using YOLTIP=OTOYOL.",
+    "Do not describe the explicit-motorway sensitivity as removing every ramp or grade-separated road because some visually similar features remain coded as CADDE or SOKAK."
+  ]
+}

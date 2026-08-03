@@ -1,0 +1,135 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+credentials*
+*service-account*.json
+*.json.key
+*.pem
+*.p12
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.coverage
+
+# GIS and third-party spatial data (large, provider-licensed)
+data/00_external/**
+data/01_raw/**
+data/02_interim/**
+data/03_processed/**
+data/04_training_labels/**
+data/05_model_outputs/**
+*.gpkg
+*.gpkg-shm
+*.gpkg-wal
+*.tif
+*.tiff
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.nc
+*.hdf
+*.h5
+
+# Serialized Python objects
+*.pkl
+*.joblib
+
+# QGIS
+*.qgz~
+qgis/exports/**
+
+# Google Earth Engine
+gee/exports/**
+
+# Large generated outputs
+outputs/**
+output/**
+logs/**
+
+# LaTeX build artifacts
+paper/manuscript/build/**
+paper/manuscript/src/*.aux
+paper/manuscript/src/*.bbl
+paper/manuscript/src/*.blg
+paper/manuscript/src/*.fdb_latexmk
+paper/manuscript/src/*.fls
+paper/manuscript/src/*.glo
+paper/manuscript/src/*.glg
+paper/manuscript/src/*.gls
+paper/manuscript/src/*.ist
+paper/manuscript/src/*.log
+paper/manuscript/src/*.out
+paper/manuscript/src/*.spl
+paper/manuscript/src/*.synctex.gz
+paper/manuscript/src/*.pdf
+paper/manuscript/src/tmp/**
+
+# Submission build artifacts
+paper/submission/*.aux
+paper/submission/*.fdb_latexmk
+paper/submission/*.fls
+paper/submission/*.log
+paper/submission/*.out
+paper/submission/*.synctex.gz
+paper/submission/*.pdf
+
+# IDE and operating system
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# AI assistant internals
+.agents/
+.claude/
+.codex/
+.codex_pydeps/
+.mplconfig/
+
+# Temp, debug, and build artifacts
+tmp/
+_debug_*.png
+scripts/node_modules/
+scripts/__pycache__/
+scripts/_pre_coastline_fix_backup/
+scripts/outputs/
+scripts/paper/
+
+# QGIS project backups
+*.qgz~
+*.zip
+
+# Manuscript and AI internals (excluded from public repo)
+paper/manuscript/**
+paper/submission/**
+AGENTS.md
+project_guide.md
+paper/figures/manual/**
+docs/submission/**
+docs/manuscript/**
+docs/journal_target/**
+docs/notes/**
+*_ai_prompts_only.md
+
+# Internal-only content (excluded from public repo)
+qgis/**
+gee/**
+docs/methodology/**
+docs/literature/**
+references/**
+paper/FIGURE_MAPPING.md
+notebooks/**
+
+# Internal scripts (single-use, author-specific)
+scripts/build_mert_*.py
+scripts/build_reference_control_workbook.mjs
+scripts/build_classical_baseline_report.py
+src/modeling/run_leave_district_out_v8_coastline_fix_tmp.py

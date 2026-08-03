@@ -1,0 +1,17 @@
+# Normalize line endings
+* text=auto
+
+# Binary formats that should not be text-normalized
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.gpkg binary
+*.qgz binary
+*.tif binary
+*.tiff binary
+
+# Linguist overrides for repository language stats
+*.tex linguist-detectable=true
+*.bib linguist-detectable=true
+paper/manuscript/src/tables/*.tex linguist-generated=true

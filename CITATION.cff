@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: "If you use the code or figures from this repository, please cite the article below."
+title: "CLIMORFA: a climate-morphology evidence baseline for Izmir"
+authors:
+  - family-names: Eminoğlu
+    given-names: Yusuf
+    orcid: "https://orcid.org/0009-0005-6000-2934"
+    email: yusuf.eminoglu@deu.edu.tr
+    affiliation: "Department of City and Regional Planning, Dokuz Eylül University, İzmir, Türkiye"
+  - family-names: Yavaş
+    given-names: Mert
+    orcid: "https://orcid.org/0009-0001-0477-2599"
+    email: merrtyavas@gmail.com
+    affiliation: "Department of City and Regional Planning, Dokuz Eylül University, İzmir, Türkiye"
+  - family-names: Erdin
+    given-names: Hilmi Evren
+    orcid: "https://orcid.org/0000-0002-3350-8930"
+    email: evren.erdin@deu.edu.tr
+    affiliation: "Department of City and Regional Planning, Dokuz Eylül University, İzmir, Türkiye"
+  - family-names: Şırkı
+    given-names: Esra
+    orcid: "https://orcid.org/0000-0001-7914-4821"
+    email: esra.yavic@siirt.edu.tr
+    affiliation: "Department of City and Regional Planning, Siirt University, Siirt, Türkiye"
+keywords:
+  - local-climate-zones
+  - urban-morphology
+  - land-surface-temperature
+  - explainable-machine-learning
+  - LightGBM
+  - reproducible-research
+  - Izmir
+  - Turkiye
+license: MIT
+repository-code: "https://github.com/YusufEminoglu/climorfa"
+preferred-citation:
+  authors:
+    - family-names: Eminoğlu
+      given-names: Yusuf
+    - family-names: Yavaş
+      given-names: Mert
+    - family-names: Erdin
+      given-names: Hilmi Evren
+    - family-names: Şırkı
+      given-names: Esra
+  title: "CLIMORFA: a climate-morphology evidence baseline for Izmir"
+  journal: "Sustainable Cities and Society"
+  year: 2026
+  status: under-review
+  note: "No DOI assigned yet. Update this entry when the article is published."
