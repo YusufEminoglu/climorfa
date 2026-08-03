@@ -16,7 +16,7 @@ No third-party geospatial dataset is included in this repository. Each input
 dataset must be obtained from its original provider and remains under that
 provider's licence. Key sources include:
 
-- **Surface model** — national mapping agency; obtain under provider terms
+- **Surface model** — local administration; obtain under provider terms
 - **OpenStreetMap** — ODbL; download via Overpass API or Geofabrik
 - **Landsat / Sentinel-2** — public domain; accessible via Google Earth Engine
 - **Dynamic World / ESA WorldCover** — CC BY 4.0; accessible via Earth Engine

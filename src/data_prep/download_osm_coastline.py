@@ -32,7 +32,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--study-area", default="data/02_interim/study_area_fua.gpkg")
     parser.add_argument("--study-layer", default="study_area_fua")
-    parser.add_argument("--raw-json", default="data/01_raw/osm/osm_coastline_overpass.json")
+    parser.add_argument("--raw-json", default="data/01_raw/osm/osm_coastline_query.json")
     parser.add_argument("--out-gpkg", default="data/02_interim/shoreline_osm_epsg5253.gpkg")
     parser.add_argument("--out-layer", default="shoreline_osm_epsg5253")
     parser.add_argument("--target-epsg", type=int, default=5253)

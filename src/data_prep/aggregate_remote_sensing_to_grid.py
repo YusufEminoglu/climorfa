@@ -15,7 +15,7 @@ from osgeo import gdal, ogr
 
 CONTINUOUS_PRODUCTS = [
     {
-        "path": "data/02_interim/rasters/izmir_fua_sentinel2_summer_2025_indices_epsg5253_20m.tif",
+        "path": "data/02_interim/rasters/sentinel2_indices_fua.tif",
         "bands": {
             1: "s2_ndvi",
             2: "s2_ndwi",
@@ -24,7 +24,7 @@ CONTINUOUS_PRODUCTS = [
         "stats": ("mean", "std"),
     },
     {
-        "path": "data/02_interim/rasters/izmir_fua_landsat_summer_2021_2025_lst_epsg5253_30m.tif",
+        "path": "data/02_interim/rasters/landsat_lst_fua.tif",
         "bands": {
             1: "lst_c_median",
             2: "lst_obs_count",
@@ -32,7 +32,7 @@ CONTINUOUS_PRODUCTS = [
         "stats": ("mean", "std"),
     },
     {
-        "path": "data/02_interim/rasters/izmir_fua_dynamic_world_summer_2025_probabilities_epsg5253_20m.tif",
+        "path": "data/02_interim/rasters/dynamic_world_fua.tif",
         "bands": {
             1: "dw_water_prob",
             2: "dw_trees_prob",
@@ -46,7 +46,7 @@ CONTINUOUS_PRODUCTS = [
         "stats": ("mean", "std"),
     },
     {
-        "path": "data/02_interim/rasters/izmir_fua_dsm5m_epsg5253.tif",
+        "path": "data/02_interim/rasters/surface_model_fua.tif",
         "bands": {
             1: "dsm_elevation_m",
         },
@@ -76,7 +76,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--grid-layer", default="grid_250m")
     parser.add_argument(
         "--worldcover-raster",
-        default="data/02_interim/rasters/izmir_fua_worldcover_2021_epsg5253_10m.tif",
+        default="data/02_interim/rasters/worldcover_fua.tif",
     )
     parser.add_argument("--out-gpkg", default="data/03_processed/grid_remote_sensing_features.gpkg")
     parser.add_argument("--out-layer", default="grid_250m_remote_sensing")

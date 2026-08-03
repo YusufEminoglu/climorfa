@@ -19,7 +19,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--grid-gpkg", default="data/03_processed/analysis_grids.gpkg")
     parser.add_argument("--grid-layer", default="grid_250m")
-    parser.add_argument("--roads-gpkg", default="data/02_interim/akilli_sehir_fua.gpkg")
+    parser.add_argument("--roads-gpkg", default="data/02_interim/buildings_roads_fua.gpkg")
     parser.add_argument("--roads-layer", default="roads_fua")
     parser.add_argument("--road-type-field", default="YOLTIP")
     parser.add_argument("--motorway-value", default="OTOYOL")

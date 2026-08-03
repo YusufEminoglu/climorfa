@@ -23,7 +23,7 @@ DEFAULT_SNAP_SENSITIVITY_M = [0.5, 1.0, 2.0, 5.0]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--roads-gpkg", default="data/02_interim/akilli_sehir_fua.gpkg")
+    parser.add_argument("--roads-gpkg", default="data/02_interim/buildings_roads_fua.gpkg")
     parser.add_argument("--roads-layer", default="roads_fua")
     parser.add_argument("--primary-snap-m", type=float, default=1.0)
     parser.add_argument("--snap-sensitivity-m", nargs="+", type=float, default=DEFAULT_SNAP_SENSITIVITY_M)

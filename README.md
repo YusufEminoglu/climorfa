@@ -54,14 +54,14 @@ Obtain these from their original providers:
 
 | Dataset | Source | Access |
 |---|---|---|
-| Surface model | National mapping agency | Provider portal |
+| Surface model | Local administration | Local administration |
 | OpenStreetMap | OSM / Geofabrik | Overpass API |
 | Landsat 8/9 LST | USGS / Google Earth Engine | `ee.ImageCollection` |
 | Sentinel-2 | ESA / Google Earth Engine | `ee.ImageCollection` |
 | Dynamic World | Google / Earth Engine | `ee.ImageCollection` |
 | ETH Canopy Height | ETH Zurich / Earth Engine | `ee.Image` |
 | WUDAPT LCZ | WUDAPT | Download portal |
-| Building footprints | Provider-derived | Provider portal |
+| Building footprints | Local administration | Local administration |
 
 See `docs/data_sources.md` for detailed access instructions.
 

@@ -44,12 +44,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model-csv", default="data/03_processed/grid_250m_model_features_v7.csv")
     parser.add_argument(
         "--population-gpkg",
-        default="data/01_raw/population/mahalle_population_controls_2024.gpkg",
+        default="data/01_raw/population/population_controls.gpkg",
     )
     parser.add_argument("--population-layer", default="mahalle_population_controls_2024")
     parser.add_argument("--population-field", default="pop_total")
     parser.add_argument("--population-key-field", default="join_key")
-    parser.add_argument("--roads-gpkg", default="data/02_interim/akilli_sehir_fua.gpkg")
+    parser.add_argument("--roads-gpkg", default="data/02_interim/buildings_roads_fua.gpkg")
     parser.add_argument("--roads-layer", default="roads_fua")
     parser.add_argument("--road-type-field", default="YOLTIP")
     parser.add_argument("--exclude-road-types", nargs="*", default=["OTOYOL"])

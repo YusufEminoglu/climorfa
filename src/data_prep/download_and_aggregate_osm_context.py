@@ -54,7 +54,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--study-layer", default="study_area_fua")
     parser.add_argument("--grid-gpkg", default="data/03_processed/analysis_grids.gpkg")
     parser.add_argument("--grid-layer", default="grid_250m")
-    parser.add_argument("--raw-json", default="data/01_raw/osm/osm_functional_context_overpass.json")
+    parser.add_argument("--raw-json", default="data/01_raw/osm/osm_context_query.json")
     parser.add_argument("--out-gpkg", default="data/02_interim/osm_functional_context_fua.gpkg")
     parser.add_argument("--out-grid-gpkg", default="data/03_processed/grid_osm_functional_context.gpkg")
     parser.add_argument("--out-grid-layer", default="grid_250m_osm_functional_context")

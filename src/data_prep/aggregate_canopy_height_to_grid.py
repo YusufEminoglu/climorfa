@@ -18,7 +18,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--grid-layer", default="grid_250m")
     parser.add_argument(
         "--canopy-raster",
-        default="data/02_interim/rasters/izmir_fua_eth_global_canopy_height_2020_clean_epsg5253_10m.tif",
+        default="data/02_interim/rasters/canopy_height_fua.tif",
     )
     parser.add_argument("--out-gpkg", default="data/03_processed/grid_canopy_height_features.gpkg")
     parser.add_argument("--out-layer", default="grid_250m_canopy_height_features")

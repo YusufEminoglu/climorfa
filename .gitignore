@@ -133,3 +133,4 @@ scripts/build_mert_*.py
 scripts/build_reference_control_workbook.mjs
 scripts/build_classical_baseline_report.py
 src/modeling/run_leave_district_out_v8_coastline_fix_tmp.py
+scripts/export_figure1_raw.py
