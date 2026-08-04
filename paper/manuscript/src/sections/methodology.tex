@@ -1,21 +1,21 @@
-﻿\section{Methods}\label{sec:methodology}
+\section{Methods}\label{sec:methodology}
 
 \subsection{Analytical design and estimands}
 
-The primary estimand in this version is out-of-sample discrimination of four
+The primary estimand is out-of-sample discrimination of four
 high-confidence global LCZ weak labels from local climate-morphology features.
 The analysis distinguishes transferable predictive signal from agreement with
 local audited subtypes. Secondary estimands are (i) the
 incremental predictive contribution of feature families, (ii) the paired
 contribution of network 2SFCA thresholds, (iii) leave-district transfer, and
 (iv) descriptive association between the weak classes, morphology, and summer
-LST. The final intended estimand---audited LCZ-like local subtype prediction---is
-now assessed descriptively on the completed audit, but remains limited by the
+LST. Audited LCZ-like local subtype prediction is
+assessed descriptively on the completed audit, but remains limited by the
 small high-quality subset and the absence of a trained deep model.
 
 The workflow is summarized in Figure~\ref{fig:workflow}. Data transformations,
 model settings, and reported results are archived with the public analysis
-package. Planned neural components are clearly separated from the completed
+package. Neural components are outside the present analysis and are clearly separated from the completed
 tabular analysis.
 
 \begin{figure}[!htbp]
@@ -180,7 +180,7 @@ exposure.
 
 \subsection{Confirmatory CLIMORFA architecture and stopping rule}
 
-The planned confirmatory architecture has three branches: (i) raster chips for
+The confirmatory architecture has three branches: (i) raster chips for
 Sentinel, land-cover probabilities, and the 5 m surface model; (ii) multichannel
 figure-ground chips for buildings, streets, open space, vegetation, and height
 coding; and (iii) tabular morphometric, vegetation, coast, network, and 2SFCA
@@ -202,5 +202,5 @@ semantic inputs. Integrated Gradients, Grad-CAM or occlusion, and tabular SHAP
 are required. These analyses cannot enter the
 abstract, headline tables, or conclusion as a deep-model performance claim
 until the branches are trained and evaluated on an audited spatial-validation
-design. The current paper therefore reports an evidence-grounded tabular
+design. This paper therefore reports an evidence-grounded tabular
 baseline and bounded audit validation, not CLIMORFA deep-model performance.

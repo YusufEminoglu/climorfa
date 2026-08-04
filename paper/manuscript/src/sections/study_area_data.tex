@@ -1,4 +1,4 @@
-﻿\section{Study area and data}\label{sec:study_area_data}
+\section{Study area and data}\label{sec:study_area_data}
 
 \subsection{Izmir functional urban region and analytical support}
 
@@ -20,7 +20,7 @@ grid remains a preregistered confirmatory sensitivity because its optimized
 feature pipeline has not yet been run. Industrial, port, airport, water-edge,
 and low-coverage units were retained with context and quality flags rather than
 silently removed. Figure~\ref{fig:study-area} shows the study frame, the four
-weak built classes used in the current analysis, and the Landsat LST response.
+weak built classes used in the analysis, and the Landsat LST response.
 
 \begin{figure}[!htbp]
     \centering
@@ -89,11 +89,11 @@ classes 1--10, confidence at least 0.60, and at least 100 observations per
 class. This retained 5,339 grid units in LCZ 3, 6, 8, and 9. A separate 569-unit
 manual-audit sample spans 40 weak-LCZ-by-built-intensity strata and is spatially
 balanced. It is accompanied by an allowed-label codebook, required source and
-review fields, and a three-pass priority queue. All 569 rows are now complete
-and passed the audit schema gate, with 382 high-, 143 medium-, and 28 low-quality
-rows; 16 edge cases carry reject flags. The audit therefore supports a bounded
+review fields, and a three-pass priority queue. The audit comprised 569 records,
+all of which passed the audit schema gate. Quality review classified 382 as high, 143 as medium, and 28 as low quality;
+16 edge cases also received reject flags. The audit therefore supports a bounded
 descriptive validation, but its primary four-class modeling population is a
 small high-quality subset and should not be read as a complete local subtype
-census. Table~\ref{tab:analysis_frame} reports the current analysis status.
+census. Table~\ref{tab:analysis_frame} reports the analysis status.
 
 \input{tables/generated/table_2_analysis_frame}
