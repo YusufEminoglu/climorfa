@@ -27,6 +27,11 @@
 \usepackage{placeins}
 \usepackage{float}
 
+% Keep substantial figures with available manuscript text instead of creating
+% sparse float-only pages.
+\renewcommand{\floatpagefraction}{0.99}
+\renewcommand{\textfraction}{0.05}
+
 \usepackage{color, soul}
 \DeclareRobustCommand{\hlc}[1]{{\sethlcolor{lightgray}\hl{#1}}}
 
