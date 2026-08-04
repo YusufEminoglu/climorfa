@@ -12,7 +12,13 @@ contrasts feature-family missingness with the four-class analysis population.
 composition. LCZ 6 is the largest class (1,842), followed by LCZ 8 (1,317), LCZ
 9 (1,099), and LCZ 3 (1,081).
 
-\begin{figure*}[htbp]
+The manual audit is complete: all 569 sampled units passed the schema gate, comprising
+382 high-, 143 medium-, and 28 low-quality rows, with 16 edge-case reject flags.
+Weak-versus-audit agreement and bounded audited model comparisons are therefore
+available, although the primary four-class comparison is limited to 96
+high-quality units and retains substantial class-space compression.
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{fig_3_data_readiness.png}
     \caption{Data readiness and audit design. Panels (a--c) show representative
@@ -21,13 +27,7 @@ composition. LCZ 6 is the largest class (1,842), followed by LCZ 8 (1,317), LCZ
     with priority scores. Missingness can be structural and is not automatically
     an error.}
     \label{fig:data-readiness}
-\end{figure*}
-
-The manual audit is complete: all 569 sampled units passed the schema gate, comprising
-382 high-, 143 medium-, and 28 low-quality rows, with 16 edge-case reject flags.
-Weak-versus-audit agreement and bounded audited model comparisons are therefore
-available, although the primary four-class comparison is limited to 96
-high-quality units and retains substantial class-space compression.
+\end{figure}
 
 \subsection{Weak-class climate-morphology profiles}
 
@@ -42,14 +42,14 @@ also had higher median NDVI (0.331 and 0.353) than LCZ 3 and LCZ 8 (0.137 and
 
 \input{tables/generated/table_4_class_profiles}
 
-\begin{figure*}[htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.94\textwidth]{fig_4_class_profiles.png}
+    \includegraphics[width=0.78\textwidth]{fig_4_class_profiles.png}
     \caption{Weak-class profiles. Colour expresses each class median standardized
     across the four classes; annotations are raw medians. Structural missingness
 means the displayed height-proxy medians use available building-bearing units.}
     \label{fig:class-profiles}
-\end{figure*}
+\end{figure}
 
 These contrasts are consistent with the broad semantics of the global labels,
 but they remain weak-label profiles rather than a substitute for the audited
@@ -71,14 +71,14 @@ primary recipe was 0.012. The 1,200 m alternative was marginally higher for
 LightGBM (0.839), so the 800 m result is retained as the prespecified primary
 rather than selected post hoc.
 
-\begin{figure*}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.92\textwidth]{fig_5_baseline_performance.png}
     \caption{Mean macro-F1 under five spatial block folds for four tabular
     learners. Recipes are additive and the shaded position marks the
     prespecified 800 m recipe. All targets are global weak labels.}
     \label{fig:baseline-performance}
-\end{figure*}
+\end{figure}
 
 \input{tables/generated/table_5_baseline_performance}
 
@@ -103,13 +103,13 @@ remote semantic information may share signal with the weak LCZ target. The
 importance ranking is therefore an explanation of the model, not proof of an
 independent physical mechanism.
 
-\begin{figure*}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.88\textwidth]{fig_6_feature_importance.png}
     \caption{Mean LightGBM gain importance across the five primary 800 m folds,
     normalized within each fold. Error bars are between-fold standard deviations.}
     \label{fig:importance}
-\end{figure*}
+\end{figure}
 
 The primary LightGBM mean out-of-fold maximum probability was 0.959, compared
 with pooled accuracy 0.837; correct predictions numbered 4,468 and mismatches
@@ -118,7 +118,7 @@ and audit-compatible/contradictory units. Probability is not calibrated
 confidence, however; the warning score is used as a stability indicator rather
 than a planning-risk estimate.
 
-\begin{figure*}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{fig_7_uncertainty.png}
     \caption{Out-of-fold LightGBM uncertainty for the primary recipe. (a) Spatial
@@ -126,7 +126,7 @@ than a planning-risk estimate.
     LightGBM, and Random Forest audit crosswalks. Agreement shares are
     descriptive and the probabilities are not calibrated confidence.}
     \label{fig:uncertainty}
-\end{figure*}
+\end{figure}
 
 \subsection{Network 2SFCA threshold sensitivity}
 
@@ -139,7 +139,7 @@ as sensitivity parameters: access geography changes with catchment radius, and
 larger radii add both supply and competing demand. The 800 m threshold remains
 primary by design rather than by post-hoc reselection.
 
-\begin{figure*}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{fig_8_2sfca_sensitivity.png}
     \caption{Network-cost 2SFCA scale sensitivity. (a) Access geography at
@@ -148,7 +148,7 @@ primary by design rather than by post-hoc reselection.
     contestation. The figure is descriptive of access geography; model-score
     deltas are reported in Table~\ref{tab:2sfca}.}
     \label{fig:2sfca-sensitivity}
-\end{figure*}
+\end{figure}
 
 \input{tables/generated/table_8_2sfca_sensitivity}
 
@@ -175,14 +175,14 @@ from spatial-block macro-F1 0.838 to district-held-out 0.723 indicates that
 within-FUR geographic transfer is materially harder than local block
 interpolation.
 
-\begin{figure*}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.9\textwidth]{fig_10_leave_district_out.png}
     \caption{LightGBM leave-one-district-out transfer. Only districts with at
     least 100 eligible observations are included; scores use classes present in each
     held-out district, with Random Forest shown as a comparison in panel (b).}
     \label{fig:lodo}
-\end{figure*}
+\end{figure}
 
 \input{tables/generated/table_7_leave_district}
 
@@ -197,7 +197,7 @@ density ($\rho=0.342$). NDVI ($\rho=-0.678$) and canopy-volume proxy
 ($\rho=-0.670$) had the strongest negative associations. Figure~\ref{fig:climate}
 and Table~\ref{tab:climate_validation} report the complete selected set.
 
-\begin{figure*}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{fig_9_climate_validation.png}
     \caption{Descriptive climate-response validation. (a) Summer median LST by
@@ -205,7 +205,7 @@ and Table~\ref{tab:climate_validation} report the complete selected set.
     the lower tiles show audited cool/hot contrasts. The statistics are
     cross-sectional and do not estimate causal cooling.}
     \label{fig:climate}
-\end{figure*}
+\end{figure}
 
 \input{tables/generated/table_9_climate_validation}
 
@@ -222,7 +222,7 @@ that many audited natural/open classes are not representable by the four-class
 target. These values are therefore evidence of class-space compression and
 model transfer limits, not a calibrated estimate of local subtype prevalence.
 
-\begin{figure*}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{fig_11_audited_validation.png}
     \caption{Audited-label comparison. (a) Weak label versus audited local
@@ -231,7 +231,7 @@ model transfer limits, not a calibrated estimate of local subtype prevalence.
     agreement is descriptive and natural/open audited classes are retained to
     reveal class-space compression.}
     \label{fig:audited-validation}
-\end{figure*}
+\end{figure}
 
 \input{tables/generated/table_10_audited_validation}
 
