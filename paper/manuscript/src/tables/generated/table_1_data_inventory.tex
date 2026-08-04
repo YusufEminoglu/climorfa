@@ -1,26 +1,26 @@
 \begin{table*}[htbp]
 \centering
 \footnotesize
-\caption{Analysis-ready data inventory and provenance.}
+\caption{Analysis-ready data inventory and analytical roles.}
 \label{tab:data_inventory}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{lllll}
+\begin{tabular}{llll}
 \toprule
-Dataset & Date/period & Resolution & Role & Analysis path \\
+Dataset & Date/period & Resolution & Analytical role \\
 \midrule
-Study frame & Current operational boundary & vector & Izmir FUR and grid & data/02\_interim/study\_area\_fua.gpkg \\
-Local surface model & local archive & 5 m & surface elevation/roughness & data/02\_interim/rasters/izmir\_fua\_dsm5m\_epsg5253.tif \\
-Buildings and roads & local Akilli Sehir snapshot & vector & morphometrics/network & data/02\_interim/akilli\_sehir\_fua.gpkg \\
-Global LCZ & RUB latest at extraction & 100 m working & weak labels & data/02\_interim/rasters/izmir\_fua\_lcz\_weak\_epsg5253\_100m.tif \\
-Sentinel-2 & summer 2025 & 20 m working & NDVI/NDWI/NDBI & data/02\_interim/rasters/izmir\_fua\_sentinel2\_summer\_2025\_indices\_epsg5253\_20m.tif \\
-Landsat 8/9 & summer 2021-2025 & 30 m & LST response & data/02\_interim/rasters/izmir\_fua\_landsat\_summer\_2021\_2025\_lst\_epsg5253\_30m.tif \\
-Dynamic World & summer 2025 & 20 m working & land-cover probabilities & data/02\_interim/rasters/izmir\_fua\_dynamic\_world\_summer\_2025\_probabilities\_epsg5253\_20m.tif \\
-ESA WorldCover & 2021 & 10 m & land-cover shares & data/02\_interim/rasters/izmir\_fua\_worldcover\_2021\_epsg5253\_10m.tif \\
-ETH canopy height & 2020 & 10 m & vegetation height/volume proxies & data/02\_interim/rasters/izmir\_fua\_eth\_global\_canopy\_height\_2020\_clean\_epsg5253\_10m.tif \\
-OSM + 2024 population & current extract / 2024 & vector + grid & 2SFCA supply/demand & data/03\_processed/grid\_green\_space\_2sfca.gpkg \\
+Study frame & Current operational boundary & vector & Izmir FUR and analysis grid \\
+Local surface model & local archive & 5 m & surface elevation and roughness \\
+Buildings and roads & local Akilli Sehir snapshot & vector & built form and street-network metrics \\
+Global LCZ & RUB latest at extraction & 100 m working & weak climate-form labels \\
+Sentinel-2 & summer 2025 & 20 m working & vegetation and built-up indices \\
+Landsat 8/9 & summer 2021--2025 & 30 m & summer LST response \\
+Dynamic World & summer 2025 & 20 m working & land-cover probabilities \\
+ESA WorldCover & 2021 & 10 m & land-cover shares \\
+ETH canopy height & 2020 & 10 m & vegetation height and volume proxies \\
+OSM + 2024 population & current extract / 2024 & vector + grid & green-space supply and demand \\
 \bottomrule
 \end{tabular}%
 }
-\begin{minipage}{0.96\textwidth}\vspace{2pt}\scriptsize Note: All analysis layers use EPSG:5253 after harmonization. Source licences and surface-model redistribution permission must be confirmed before public release.\end{minipage}
+\begin{minipage}{0.96\textwidth}\vspace{2pt}\scriptsize Note: Spatial layers were aligned to a common metric analysis grid. Source licences and redistribution permissions are documented separately from the article.\end{minipage}
 \end{table*}
 

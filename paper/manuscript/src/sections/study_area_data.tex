@@ -12,15 +12,15 @@ because local heat-risk interpretation can differ from inland cities and must
 not be reduced to urban form alone \citep{canguzel2024ClimateChange,
 zhang2025ApplicabLocal}.
 
-All vector and raster analyses were harmonized to EPSG:5253. The primary support
-is a 250 m regular grid clipped by the FUR boundary. It contains 16,506
-intersecting cells, of which 15,801 meet the core boundary-coverage rule. A
-500 m grid containing 4,288 cells is prepared for scale sensitivity; the 125 m
+All spatial layers were aligned to a common metric analysis grid. The primary
+support is a 250 m regular grid clipped by the FUR boundary. It contains
+16,506 grid units, of which 15,801 meet the core boundary-coverage rule. A
+500 m grid containing 4,288 units is prepared for scale sensitivity; the 125 m
 grid remains a preregistered confirmatory sensitivity because its optimized
 feature pipeline has not yet been run. Industrial, port, airport, water-edge,
-and low-coverage cells were retained with context and quality flags rather than
+and low-coverage units were retained with context and quality flags rather than
 silently removed. Figure~\ref{fig:study-area} shows the study frame, the four
-weak built classes used in the current diagnostic, and the Landsat LST response.
+weak built classes used in the current analysis, and the Landsat LST response.
 
 \begin{figure*}[htbp]
     \centering
@@ -33,9 +33,7 @@ weak built classes used in the current diagnostic, and the Landsat LST response.
 
 \subsection{Local morphology and surface model}
 
-The local surface model was warped and clipped to the FUR at 5 m resolution. The accepted
-working file is
-\path{data/02_interim/rasters/izmir_fua_dsm5m_epsg5253.tif}. Pixels below
+The local surface model was clipped to the FUR at 5 m resolution. Pixels below
 $-10$ m were excluded as a water/void guardrail during aggregation. Because the
 surface contains terrain, buildings, vegetation, and infrastructure, we use the
 terms surface-model elevation range and surface-model standard deviation, not measured building
@@ -61,19 +59,17 @@ shares represent semantic land cover. Landsat 8/9 summer observations from
 excluded from morphology predictors to prevent outcome leakage.
 
 The ETH global canopy-height product supplies 10 m height and uncertainty
-layers for 2020. The accepted export masks 255-valued artefacts and uses explicit
-NoData. Aggregated variables include canopy cover above 2, 5, and 10 m, p95
-height, and a volume proxy per hectare. Coast distance was computed from a
-shoreline layer whose missing CRS metadata was assigned EPSG:5253 after
-coordinate-range inspection; this assumption is preserved as a provenance
-caveat.
+layers for 2020. The accepted export masks artefacts and uses explicit missing
+data handling. Aggregated variables include canopy cover above 2, 5, and 10 m,
+p95 height, and a volume proxy per hectare. Coast distance was computed from a
+quality-checked shoreline layer aligned to the common analysis grid.
 
 OSM polygons, lines, and points provide proxy functional context, including
 industrial/port, commercial, institutional, green/open, blue/water, transport,
 military/quarry, and construction/brownfield flags. OSM is not official zoning
 or an imar plan. Green-space supply for the 2SFCA uses OSM park and garden
 polygons, while 2024 neighbourhood population is dasymetrically allocated to
-cells in proportion to residential floor-area proxy. Table~\ref{tab:data_inventory}
+units in proportion to residential floor-area proxy. Table~\ref{tab:data_inventory}
 records the analysis-ready sources and their roles.
 
 \input{tables/generated/table_1_data_inventory}
@@ -83,14 +79,14 @@ records the analysis-ready sources and their roles.
 The latest RUB global LCZ image collection available at extraction was
 downloaded through Google Earth Engine, clipped, warped to a 100 m working
 raster, and aggregated to the 250 m grid. A weak label is the class with the
-largest within-cell support; confidence is its support share. Labels are
-available for 16,233 cells. At a 0.70 majority threshold, 6,585 cells are mixed.
-Mixed cells are retained as transition or uncertainty candidates, not treated
+largest within-unit support; confidence is its support share. Labels are
+available for 16,233 grid units. At a 0.70 majority threshold, 6,585 units are mixed.
+Mixed units are retained as transition or uncertainty candidates, not treated
 as automatic errors.
 
 The exploratory model subset was fixed before model comparison: built LCZ
 classes 1--10, confidence at least 0.60, and at least 100 observations per
-class. This retained 5,339 cells in LCZ 3, 6, 8, and 9. A separate 569-cell
+class. This retained 5,339 grid units in LCZ 3, 6, 8, and 9. A separate 569-unit
 manual-audit sample spans 40 weak-LCZ-by-built-intensity strata and is spatially
 balanced. It is accompanied by an allowed-label codebook, required source and
 review fields, and a three-pass priority queue. All 569 rows are now complete

@@ -20,11 +20,11 @@ Local Climate Zones (LCZs) provide a transferable climate-form vocabulary, but
 locally actionable interpretation requires finer morphological evidence,
 transparent scale choices, and spatially independent validation. We assembled
 an analysis-ready 250 m grid for the Izmir functional urban region containing
-16,506 cells and 374 fields from a local 5 m surface model,
+16,506 grid units and 374 fields from a local 5 m surface model,
 building and street geometry, Sentinel-2, Landsat 8/9 land-surface temperature
 (LST), Dynamic World, ESA WorldCover, canopy height, coastal context, OpenStreetMap
 (OSM), and 2024 population demand. Global LCZ labels were treated as weak labels.
-The present evidence-locked analysis retained 5,339 cells from LCZ 3, 6, 8, and
+The present analysis retained 5,339 grid units from LCZ 3, 6, 8, and
 9 at confidence $\geq 0.60$. LightGBM, XGBoost, Random Forest, and Extra Trees
 models were evaluated with five stratified 1.25 km spatial-block folds. Additive ablations tested
 morphology, vegetation, green-blue context, full proxy context, and network-cost
@@ -38,8 +38,8 @@ leave-one-district-out macro-F1 averaged 0.723 across 11 districts (range
 0.475--0.819), revealing substantial transfer heterogeneity. Weak LCZ classes
 also differed in summer LST ($H=1592.0$, $\epsilon^2=0.298$); NDVI and canopy
 volume were negatively associated with LST, whereas NDBI, building coverage,
-and road density were positively associated. The 569-cell manual audit was
-completed; among 96 high-quality cells in the four-class modeling population,
+and road density were positively associated. The 569-location manual audit was
+completed; among 96 high-quality audited units in the four-class modeling population,
 exact agreement was 8.3\% for both the weak labels and LightGBM, exposing strong
 class-space compression. A municipal park inventory provided strong district-level
 macro triangulation of OSM supply but not object-level validation. These findings
@@ -62,6 +62,6 @@ so deep-fusion superiority is not claimed.
     \includegraphics[width=\textwidth]{graphical_abstract.png}
     \caption*{Graphical abstract summarizing the Climorfa evidence workflow,
     from multisource 250 m feature integration through spatial validation,
-    climate-response diagnostics, and audited-label comparison.}
+    climate-response analysis, and audited-label comparison.}
 \end{figure*}
 
