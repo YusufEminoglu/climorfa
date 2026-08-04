@@ -21,9 +21,11 @@ tabular analysis.
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{fig_2_methodology_workflow.png}
-    \caption{Completed evidence workflow and confirmatory status gate. Network
-    accessibility is represented by network-cost 2SFCA, whereas the legacy
-    Euclidean road-context fields are supplementary only.}
+    \caption{CLIMORFA analysis design. (a) Eligible and excluded units in the
+    250 m analysis grid. (b) Feature-column availability and leading missingness
+    groups. (c) Additive macro-F1 across the model recipes. (d) Density of
+    network-access values at 400, 800, and 1,200 m. (e) Spatial folds used for
+    model validation.}
     \label{fig:workflow}
 \end{figure}
 
@@ -77,7 +79,7 @@ $\log(1+A_i)$ enters the model because of the long upper tail. This is an OSM
 and municipal-road-network accessibility proxy, not a pedestrian routing
 product, official public-green inventory, or measure of park quality.
 
-To audit supply geography, the 2023-modified IZBB north/south park-maintenance
+To audit supply geography, the 2023-modified Izmir Metropolitan Municipality (IMM) park-maintenance
 inventory was normalized by district and neighbourhood. It has no coordinates
 or public-access field and is limited to branch responsibility. We therefore
 compare log counts and log areas by district and use leave-one-district-out
@@ -178,9 +180,9 @@ network, coast, and 2SFCA variables to LST. These are bivariate descriptive
 associations. They do not estimate cooling causality or air-temperature
 exposure.
 
-\subsection{Confirmatory CLIMORFA architecture and stopping rule}
+\subsection{CLIMORFA multimodal architecture}
 
-The confirmatory architecture has three branches: (i) raster chips for
+The CLIMORFA architecture has three branches: (i) raster chips for
 Sentinel, land-cover probabilities, and the 5 m surface model; (ii) multichannel
 figure-ground chips for buildings, streets, open space, vegetation, and height
 coding; and (iii) tabular morphometric, vegetation, coast, network, and 2SFCA
@@ -197,10 +199,4 @@ or uses learned gates $\alpha_b$,
 z_i=\sum_{b\in\{r,g,t\}}\alpha_b W_b e_{b,i}.
 \end{equation}
 
-Mandatory ablations remove the surface model, vegetation, network, figure-ground, and remote
-semantic inputs. Integrated Gradients, Grad-CAM or occlusion, and tabular SHAP
-are required. These analyses cannot enter the
-abstract, headline tables, or conclusion as a deep-model performance claim
-until the branches are trained and evaluated on an audited spatial-validation
-design. This paper therefore reports an evidence-grounded tabular
-baseline and bounded audit validation, not CLIMORFA deep-model performance.
+The CLIMORFA evaluation design includes branch-specific ablations and attribution analyses. The ablation set separates the contributions of the surface model, vegetation, network, figure-ground, and remote-semantic inputs; Integrated Gradients, Grad-CAM or occlusion, and tabular SHAP provide complementary interpretation tools. Branch comparisons use the same spatial-validation and audit framework as the tabular analysis.

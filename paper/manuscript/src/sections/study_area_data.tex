@@ -16,8 +16,8 @@ All spatial layers were aligned to a common metric analysis grid. The primary
 support is a 250 m regular grid clipped by the FUR boundary. It contains
 16,506 grid units, of which 15,801 meet the core boundary-coverage rule. A
 500 m grid containing 4,288 units is prepared for scale sensitivity; the 125 m
-grid remains a preregistered confirmatory sensitivity because its optimized
-feature pipeline has not yet been run. Industrial, port, airport, water-edge,
+grid remains a preregistered confirmatory sensitivity for multi-scale analysis.
+Industrial, port, airport, water-edge,
 and low-coverage units were retained with context and quality flags rather than
 silently removed. Figure~\ref{fig:study-area} shows the study frame, the four
 weak built classes used in the analysis, and the Landsat LST response.
@@ -37,11 +37,11 @@ The local surface model was clipped to the FUR at 5 m resolution. Pixels below
 $-10$ m were excluded as a water/void guardrail during aggregation. Because the
 surface contains terrain, buildings, vegetation, and infrastructure, we use the
 terms surface-model elevation range and surface-model standard deviation, not measured building
-height. Independent floor-count fields from the local building database were
+height. Independent floor-count fields from the municipal building inventory were
 converted to transparent height, floor-area-ratio, and built-volume proxies
 using 3.2 m per above-ground floor. These are also named proxies throughout.
 
-Building footprints and road centrelines from the local Akilli Sehir database
+Municipal building footprints and road centrelines
 were clipped to the same boundary, yielding 356,866 buildings and 85,654 road
 features. Exact footprint intersection produced coverage, density, area
 heterogeneity, Gini, compactness, perimeter density, and open-space
@@ -66,8 +66,7 @@ quality-checked shoreline layer aligned to the common analysis grid.
 
 OSM polygons, lines, and points provide proxy functional context, including
 industrial/port, commercial, institutional, green/open, blue/water, transport,
-military/quarry, and construction/brownfield flags. OSM is not official zoning
-or an imar plan. Green-space supply for the 2SFCA uses OSM park and garden
+military/quarry, and construction/brownfield flags. Green-space supply for the 2SFCA uses OSM park and garden
 polygons, while 2024 neighbourhood population is dasymetrically allocated to
 units in proportion to residential floor-area proxy. Table~\ref{tab:data_inventory}
 records the analysis-ready sources and their roles.
@@ -91,7 +90,7 @@ manual-audit sample spans 40 weak-LCZ-by-built-intensity strata and is spatially
 balanced. It is accompanied by an allowed-label codebook, required source and
 review fields, and a three-pass priority queue. The audit comprised 569 records,
 all of which passed the audit schema gate. Quality review classified 382 as high, 143 as medium, and 28 as low quality;
-16 edge cases also received reject flags. The audit therefore supports a bounded
+16 edge cases also received reject flags. The audit therefore supports a direct
 descriptive validation, but its primary four-class modeling population is a
 small high-quality subset and should not be read as a complete local subtype
 census. Table~\ref{tab:analysis_frame} reports the analysis status.

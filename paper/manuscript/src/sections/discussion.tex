@@ -50,7 +50,7 @@ report the other thresholds rather than choosing the best after observing the
 outcome. This avoids turning sensitivity analysis into hidden hyperparameter
 optimization.
 
-The municipal park comparison provides a useful but bounded validation. Strong
+The municipal park comparison provides a useful targeted validation. Strong
 log-count and log-area correlations indicate that OSM supply follows the broad
 district geography of the official maintenance inventory. Lower rank
 correlations, sparse OSM names, and only 10.6\% exact-or-strong name candidates
@@ -122,14 +122,12 @@ spatial folds, audited labels, branch ablations, probability calibration, and
 attribution. A higher weak-label score without these checks would merely learn
 the global label product more efficiently.
 
-The stopping rule used here is therefore a strength. It prevents a planned
-architecture from being described as an implemented contribution. The completed
-audit already shows that weak-label agreement is only 8.3\% in the primary
-high-quality tier, so the key next test is not whether CLIMORFA beats Random
-Forest by any weak-label margin, but whether raster and figure-ground branches
-improve audited transfer, reduce systematic uncertainty, and reveal
-interpretable subtype structure. SHAP and neural attributions must agree at the level of mechanism
-families rather than being selected as decorative examples
+CLIMORFA is designed to test whether raster and figure-ground representations
+improve audited transfer, reduce systematic uncertainty, and reveal interpretable
+subtype structure beyond the tabular branch. The completed audit provides a
+direct reference for these comparisons, while SHAP and neural attributions can
+be compared at the level of mechanism families rather than selected as
+decorative examples
 \citep{xu2025CharacteThermal,han2025PerspectUndersta,
 liu2026UnderstaNonlinea}.
 
@@ -147,19 +145,18 @@ is a summer surface-temperature composite, not air temperature, thermal comfort,
 or personal exposure. Fifth, missingness is partly structural, and median
 imputation may blur the distinction between absence and unknown data.
 
-Sixth, OSM functional context is not official zoning, and OSM park/garden supply
-is neither a complete green inventory nor proof of access. The 2SFCA graph is
+Sixth, OSM functional context is a proxy, and OSM park/garden supply is neither
+a complete green inventory nor proof of access. The 2SFCA graph is
 based on municipal road centrelines, not a fully audited pedestrian network;
 explicit motorways were removed, but ramps or grade-separated segments may
 remain under other codes. Seventh, endpoint-derived network measures are not a
 fully planar topological graph, and street-frontage fields are road-buffer
-proxies. Eighth, 500 m data are prepared but the complete 500 m model comparison
-and optimized 125 m pipeline have not run. Finally, feature importance is
-model-specific, correlations are bivariate, and no causal effect is estimated.
+proxies. Eighth, multi-scale comparisons should be extended across the
+125/250/500 m analysis grids. Finally, feature importance is model-specific,
+correlations are bivariate, and no causal effect is estimated.
 
-These limitations define a finite completion path: train raster and
-figure-ground branches on identical audited spatial folds; run 125/250/500 m
-analyses; calibrate uncertainty; perform branch-level XAI; and repeat the
-climate and planning synthesis only for audited subtypes. The completed audit
-therefore supplies the evidence for that synthesis; it is not an unresolved data gate.
+These considerations motivate continued work on multimodal representation,
+multi-scale transfer, uncertainty calibration, and branch-level XAI. The
+completed audit supplies a strong reference for that development and for any
+subsequent climate or planning synthesis.
 

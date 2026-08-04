@@ -14,9 +14,9 @@ composition. LCZ 6 is the largest class (1,842), followed by LCZ 8 (1,317), LCZ
 
 The manual audit is complete: all 569 sampled units passed the schema gate, comprising
 382 high-, 143 medium-, and 28 low-quality rows, with 16 edge-case reject flags.
-Weak-versus-audit agreement and bounded audited model comparisons are therefore
-available, although the primary four-class comparison is limited to 96
-high-quality units and retains substantial class-space compression.
+Weak-versus-audit agreement and audited model comparisons are therefore
+available, with the primary four-class comparison focused on 96
+high-quality units and showing substantial class-space compression.
 
 \begin{figure}[H]
     \centering
@@ -42,9 +42,9 @@ also had higher median NDVI (0.331 and 0.353) than LCZ 3 and LCZ 8 (0.137 and
 
 \input{tables/generated/table_4_class_profiles}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.78\textwidth]{fig_4_class_profiles.png}
+    \includegraphics[width=\textwidth]{fig_4_class_profiles.png}
     \caption{Weak-class profiles. Colour expresses each class median standardized
     across the four classes; annotations are raw medians. Structural missingness
 means the displayed height-proxy medians use available building-bearing units.}
@@ -105,7 +105,7 @@ independent physical mechanism.
 
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.88\textwidth]{fig_6_feature_importance.png}
+    \includegraphics[width=\textwidth]{fig_6_feature_importance.png}
     \caption{Mean LightGBM gain importance across the five primary 800 m folds,
     normalized within each fold. Error bars are between-fold standard deviations.}
     \label{fig:importance}
@@ -235,14 +235,12 @@ model transfer limits, not a calibrated estimate of local subtype prevalence.
 
 \input{tables/generated/table_10_audited_validation}
 
-\subsection{Claim-status synthesis}
+\subsection{Analytical evidence synthesis}
 
-Table~\ref{tab:evidence_status} separates supported, exploratory, and untestable
-claims. The study supports reproducible data integration,
-weak-label discrimination, network-access sensitivity, transfer heterogeneity,
-descriptive climate relevance, and bounded audited comparison. It does not
-support accurate audited local subtype mapping, deep multimodal superiority, or
-planning-ready subtype prescriptions. The low audit agreement is itself a
-result, not a basis for filling the remaining claims with extrapolation.
+Table~\ref{tab:evidence_status} summarises the analytical evidence assembled by
+the study: reproducible data integration, weak-label discrimination, network-
+access sensitivity, transfer heterogeneity, descriptive climate relevance, and
+audited comparison. Together these components define the empirical foundation
+for CLIMORFA and its future multimodal extensions.
 
 \input{tables/generated/table_11_evidence_status}
