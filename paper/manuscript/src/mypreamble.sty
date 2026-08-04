@@ -1,0 +1,42 @@
+﻿\ProvidesPackage{mypreamble}
+
+\usepackage{lineno}
+\modulolinenumbers[5]
+
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+
+\usepackage{import}
+\usepackage[range-phrase=--, range-units=single, per-mode=symbol]{siunitx}
+
+\usepackage{datatool}
+\DTLsetseparator{,}
+\DTLloaddb[noheader, keys={thekey,thevalue}]{mydata}{./mydata.dat}
+\newcommand{\var}[1]{\DTLfetch{mydata}{thekey}{#1}{thevalue}}
+
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{placeins}
+\usepackage{float}
+
+\usepackage{color, soul}
+\DeclareRobustCommand{\hlc}[1]{{\sethlcolor{lightgray}\hl{#1}}}
+
+\emergencystretch 5em
+
+\usepackage[printonlyused]{acronym}
+
+\bibliographystyle{elsarticle-harv}
+\biboptions{authoryear}
+
+\newcommand{\mycite}[1]{\citeauthor{#1}~(\citeyear{#1})}
+
+

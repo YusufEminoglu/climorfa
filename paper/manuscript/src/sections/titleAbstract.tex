@@ -1,0 +1,67 @@
+﻿\begin{frontmatter}
+
+\title{Climorfa: Climate-Sensitive Urban Morphology in Izmir}
+
+\author[1]{Yusuf Emino\u{g}lu\corref{cor1}\fnref{orcidYusuf}}
+\ead{yusuf.eminoglu@deu.edu.tr}
+\author[1]{Mert Yava\c{s}\fnref{orcidMert}}
+\author[1]{Hilmi Evren Erdin\fnref{orcidHilmi}}
+\author[2]{\c{S}\i rk\i \fnref{orcidEsra}}
+\cortext[cor1]{Corresponding author.}
+\fntext[orcidYusuf]{ORCID: \href{https://orcid.org/0009-0005-6000-2934}{0009-0005-6000-2934}}
+\fntext[orcidMert]{ORCID: \href{https://orcid.org/0009-0001-0477-2599}{0009-0001-0477-2599}}
+\fntext[orcidHilmi]{ORCID: \href{https://orcid.org/0000-0002-3350-8930}{0000-0002-3350-8930}}
+\fntext[orcidEsra]{ORCID: \href{https://orcid.org/0000-0001-7914-4821}{0000-0001-7914-4821}}
+\address[1]{Department of City and Regional Planning, Dokuz Eyl\"ul University, \.{I}zmir, T\"urkiye}
+\address[2]{Department of City and Regional Planning, Siirt University, Siirt, T\"urkiye}
+
+\begin{abstract}
+Local Climate Zones (LCZs) provide a transferable climate-form vocabulary, but
+locally actionable interpretation requires finer morphological evidence,
+transparent scale choices, and spatially independent validation. We assembled
+an analysis-ready 250 m grid for the Izmir functional urban region containing
+16,506 cells and 374 fields from a local 5 m surface model,
+building and street geometry, Sentinel-2, Landsat 8/9 land-surface temperature
+(LST), Dynamic World, ESA WorldCover, canopy height, coastal context, OpenStreetMap
+(OSM), and 2024 population demand. Global LCZ labels were treated as weak labels.
+The present evidence-locked analysis retained 5,339 cells from LCZ 3, 6, 8, and
+9 at confidence $\geq 0.60$. LightGBM, XGBoost, Random Forest, and Extra Trees
+models were evaluated with five stratified 1.25 km spatial-block folds. Additive ablations tested
+morphology, vegetation, green-blue context, full proxy context, and network-cost
+two-step floating catchment area (2SFCA) green-space access at 400, 800, and
+1,200 m. The primary 800 m LightGBM model achieved macro-F1 0.838, compared
+with 0.663 for morphology alone; XGBoost, Random Forest, and Extra Trees reached
+0.835, 0.829, and 0.819, respectively, at the primary recipe. Adding vegetation
+produced the largest early gain, while 800 m 2SFCA added 0.0056 macro-F1 to
+LightGBM relative to an otherwise identical full-context model. LightGBM
+leave-one-district-out macro-F1 averaged 0.723 across 11 districts (range
+0.475--0.819), revealing substantial transfer heterogeneity. Weak LCZ classes
+also differed in summer LST ($H=1592.0$, $\epsilon^2=0.298$); NDVI and canopy
+volume were negatively associated with LST, whereas NDBI, building coverage,
+and road density were positively associated. The 569-cell manual audit was
+completed; among 96 high-quality cells in the four-class modeling population,
+exact agreement was 8.3\% for both the weak labels and LightGBM, exposing strong
+class-space compression. A municipal park inventory provided strong district-level
+macro triangulation of OSM supply but not object-level validation. These findings
+establish a reproducible, explainable baseline and show why surface-model structure,
+vegetation, network accessibility, spatial transfer, and audit evidence must
+accompany LCZ interpretation. Raster/figure-ground deep branches remain untrained,
+so deep-fusion superiority is not claimed.
+\end{abstract}
+
+\begin{keyword}
+    Local Climate Zones \sep urban morphology \sep surface model \sep
+    land-surface temperature \sep two-step floating catchment area \sep
+    spatial cross-validation \sep explainable machine learning \sep Izmir
+\end{keyword}
+
+\end{frontmatter}
+
+\begin{figure*}[p]
+    \centering
+    \includegraphics[width=\textwidth]{graphical_abstract.png}
+    \caption*{Graphical abstract summarizing the Climorfa evidence workflow,
+    from multisource 250 m feature integration through spatial validation,
+    climate-response diagnostics, and audited-label comparison.}
+\end{figure*}
+

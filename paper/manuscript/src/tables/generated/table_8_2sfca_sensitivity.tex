@@ -1,0 +1,27 @@
+\begin{table*}[htbp]
+\centering
+\footnotesize
+\caption{Paired 2SFCA threshold contribution relative to the same model without 2SFCA.}
+\label{tab:2sfca}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrr}
+\toprule
+Model & Threshold & Mean delta & SD & Fold wins & Range \\
+\midrule
+LightGBM & 400 m & -0.0014 & 0.0033 & 1/5 & [-0.0057, +0.0036] \\
+LightGBM & 800 m & +0.0056 & 0.0036 & 5/5 & [+0.0017, +0.0088] \\
+LightGBM & 1200 m & +0.0064 & 0.0079 & 3/5 & [-0.0021, +0.0171] \\
+XGBoost & 400 m & +0.0017 & 0.0080 & 3/5 & [-0.0059, +0.0129] \\
+XGBoost & 800 m & +0.0023 & 0.0067 & 3/5 & [-0.0053, +0.0106] \\
+XGBoost & 1200 m & +0.0054 & 0.0061 & 4/5 & [-0.0043, +0.0110] \\
+Random Forest & 400 m & -0.0022 & 0.0052 & 2/5 & [-0.0095, +0.0028] \\
+Random Forest & 800 m & +0.0028 & 0.0035 & 4/5 & [-0.0030, +0.0054] \\
+Random Forest & 1200 m & +0.0014 & 0.0030 & 3/5 & [-0.0021, +0.0050] \\
+Extra Trees & 400 m & +0.0003 & 0.0019 & 4/5 & [-0.0028, +0.0021] \\
+Extra Trees & 800 m & +0.0007 & 0.0040 & 3/5 & [-0.0058, +0.0035] \\
+Extra Trees & 1200 m & +0.0021 & 0.0060 & 3/5 & [-0.0047, +0.0094] \\
+\bottomrule
+\end{tabular}%
+}
+\begin{minipage}{0.96\textwidth}\vspace{2pt}\scriptsize Note: Threshold performance is interpreted as sensitivity, not post-hoc model selection; the 800 m threshold is primary by design. Deltas are paired within the same spatial folds.\end{minipage}
+\end{table*}

@@ -1,0 +1,24 @@
+\begin{table*}[htbp]
+\centering
+\footnotesize
+\caption{Feature families used in the evidence-locked baseline.}
+\label{tab:feature_families}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lll}
+\toprule
+Family & Representative variables & Primary role \\
+\midrule
+2D morphology & coverage, density, compactness, fragmentation & urban fabric \\
+3D/surface model & surface-model SD/range, floor-height proxies & surface roughness/vertical intensity \\
+Vegetation & canopy cover, p95 height, volume, NDVI & 3D green structure \\
+Green-blue/coast & NDWI, water/tree shares, coast distance & climate context \\
+Street network & road/intersection/dead-end density, entropy & connectivity proxy \\
+Street interface & continuity, gap, open-buffer share & frontage proxy \\
+Green access & network-cost 2SFCA at 400/800/1200 m & competition-adjusted access \\
+Semantic context & Dynamic World, WorldCover, OSM shares & proxy land-use context \\
+\bottomrule
+\end{tabular}%
+}
+\begin{minipage}{0.96\textwidth}\vspace{2pt}\scriptsize Note: LST and label-quality fields were excluded from predictors. OSM, floor count, frontage, and endpoint topology remain explicitly named proxies.\end{minipage}
+\end{table*}
+

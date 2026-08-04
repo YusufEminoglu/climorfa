@@ -1,0 +1,7 @@
+study_cells,TBD
+audited_cells,TBD
+spatial_folds,TBD
+primary_grid_m,250
+network_reach_local_m,250
+network_reach_walk_m,400
+network_reach_neighbourhood_m,800

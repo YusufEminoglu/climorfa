@@ -107,8 +107,8 @@ scripts/paper/
 *.qgz~
 *.zip
 
-# Manuscript and AI internals (excluded from public repo)
-paper/manuscript/**
+# Manuscript source is part of the public research release. Keep only
+# generated/build artifacts and temporary review files out of version control.
 paper/submission/**
 AGENTS.md
 project_guide.md
@@ -118,6 +118,13 @@ docs/manuscript/**
 docs/journal_target/**
 docs/notes/**
 *_ai_prompts_only.md
+
+# Additional manuscript build folders/files not covered by the patterns above
+paper/manuscript/src/$out/**
+paper/manuscript/src/$outDir/**
+paper/manuscript/src/main_submission_review.*
+paper/manuscript/figures/**
+paper/manuscript/paper/**
 
 # Internal-only content (excluded from public repo)
 qgis/**

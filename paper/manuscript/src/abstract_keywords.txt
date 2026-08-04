@@ -1,0 +1,11 @@
+Working abstract and keywords.
+
+The final abstract must not present the paper as generic LCZ classification.
+It should state that global LCZ labels are refined into local
+climate-morphology subtypes using 5 m surface model, figure-ground morphology,
+street-network context, vegetation structure, and remote-sensing climate
+validation.
+
+Candidate keywords:
+Local Climate Zones; urban morphology; surface model; urban heat;
+street-network metrics; multi-modal deep learning; explainable AI; Izmir

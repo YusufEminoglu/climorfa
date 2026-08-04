@@ -1,0 +1,82 @@
+\appendix
+
+\section{Supplementary diagnostics and reproducibility evidence}\label{sec:appendix}
+
+This appendix contains the current evidence-bearing diagnostics used to
+interpret the weak-label baseline. It is limited to reproducible feature,
+surface-model, canopy, and spatial-fold evidence. Retired
+external-triangulation diagnostics, duplicate weak-label panels, manual-audit
+figures, and untrained deep-model outputs are not part of the supplementary
+bundle; the completed audit is reported in the main text.
+
+All panels were generated from the locked feature matrix and model-output
+directories identified in the project figure map. Source paths, parameters,
+selection rules, and claim boundaries are retained in the accompanying
+manifests and build scripts.
+
+\subsection{Matched urban-texture, surface-model, and canopy atlas}
+
+The atlas contains the same 48 deterministic selection cells used for the
+within-class climate--morphology comparison. Each cell is shown through
+matched figure-ground texture, surface-model elevation/roughness, and cleaned
+10 m canopy-height views. The atlas is descriptive and reproducible from the
+exported selection manifest; it is not an audited local subtype validation.
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{fig_s1_texture_dsm_canopy_atlas_48_cells.png}
+    \caption{Matched 48-cell urban-texture atlas. Each selected cell contains
+    figure-ground texture, surface-model elevation/roughness, and canopy-height
+    views on shared robust scales. The figure is a visual evidence bridge, not
+    a validated building-height or audited local-classification result.}
+    \label{fig:s1-texture-surface-canopy}
+\end{figure*}
+\FloatBarrier
+
+\subsection{Feature quality and collinearity}
+
+Feature missingness is interpreted together with structural-absence flags
+before fold-specific imputation. The collinearity panel records the largest
+groups at absolute correlation $r\geq0.95$; family-level ablations and
+representative variables are used to reduce redundancy in the reported
+baselines.
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=0.96\textwidth]{fig_s2_feature_quality.png}
+    \caption{Feature-quality diagnostic. (a) Mean and maximum missingness by
+    family, (b) feature count versus near-constant columns, and (c) the largest
+    high-correlation feature groups.}
+    \label{fig:s2-feature-quality}
+\end{figure*}
+\FloatBarrier
+
+\subsection{Spatial-fold diagnostics}
+
+The primary spatial folds are fixed before model comparison. This diagnostic
+shows class support by fold and the fold-wise distribution of the primary
+LightGBM out-of-fold prediction probability. It is a stability diagnostic for
+the weak-label baseline and does not constitute audited subtype validation.
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{fig_s3_spatial_fold_diagnostics.png}
+    \caption{Spatial-fold diagnostics. (a) Weak-class support across the fixed
+    spatial folds and (b) primary LightGBM out-of-fold prediction probability
+    by fold.}
+    \label{fig:s3-spatial-folds}
+\end{figure*}
+\FloatBarrier
+
+\subsection{Reproducibility checklist}
+
+The analysis package should be considered internally reproducible when the
+following checks pass: (i) the v8 input has 16,506 rows and 374 fields; (ii)
+all manifest-referenced fields exist; (iii) the four-class filter returns
+5,339 rows; (iv) every eligible row has one spatial fold; (v) preprocessing is
+fitted inside training folds; (vi) all reported out-of-fold outputs are
+regenerated from the locked scripts and parameters; and (vii) the PDF compiles
+without missing figure, table, citation, or reference warnings. The manual
+audit is complete, but deep multimodal fusion remains unavailable until its
+output manifests exist, so no supplementary panel should be read as evidence
+of a trained deep model.

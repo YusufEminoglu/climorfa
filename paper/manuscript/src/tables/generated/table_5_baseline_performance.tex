@@ -1,0 +1,44 @@
+\begin{table*}[htbp]
+\centering
+\scriptsize
+\caption{Five-fold stratified spatial-block weak-label performance.}
+\label{tab:baseline_performance}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrr}
+\toprule
+Model & Recipe & Features & Macro-F1 (mean $\pm$ SD) & Balanced accuracy \\
+\midrule
+XGBoost & Morphology & 15 & 0.662 $\pm$ 0.037 & 0.678 \\
+LightGBM & Morphology & 15 & 0.663 $\pm$ 0.027 & 0.669 \\
+Extra Trees & Morphology & 15 & 0.673 $\pm$ 0.030 & 0.705 \\
+Random Forest & Morphology & 15 & 0.676 $\pm$ 0.029 & 0.688 \\
+LightGBM & + vegetation & 22 & 0.760 $\pm$ 0.010 & 0.762 \\
+XGBoost & + vegetation & 22 & 0.761 $\pm$ 0.023 & 0.766 \\
+Extra Trees & + vegetation & 22 & 0.762 $\pm$ 0.016 & 0.776 \\
+Random Forest & + vegetation & 22 & 0.767 $\pm$ 0.015 & 0.772 \\
+Extra Trees & + green-blue & 29 & 0.795 $\pm$ 0.009 & 0.803 \\
+XGBoost & + green-blue & 29 & 0.801 $\pm$ 0.013 & 0.805 \\
+LightGBM & + green-blue & 29 & 0.802 $\pm$ 0.011 & 0.804 \\
+Random Forest & + green-blue & 29 & 0.805 $\pm$ 0.010 & 0.808 \\
+Extra Trees & Full, no 2SFCA & 67 & 0.819 $\pm$ 0.015 & 0.824 \\
+Random Forest & Full, no 2SFCA & 67 & 0.827 $\pm$ 0.011 & 0.827 \\
+LightGBM & Full, no 2SFCA & 67 & 0.833 $\pm$ 0.013 & 0.834 \\
+XGBoost & Full, no 2SFCA & 67 & 0.833 $\pm$ 0.013 & 0.836 \\
+Extra Trees & Full + 400 m & 68 & 0.819 $\pm$ 0.017 & 0.824 \\
+Random Forest & Full + 400 m & 68 & 0.824 $\pm$ 0.012 & 0.825 \\
+LightGBM & Full + 400 m & 68 & 0.831 $\pm$ 0.012 & 0.832 \\
+XGBoost & Full + 400 m & 68 & 0.835 $\pm$ 0.015 & 0.837 \\
+Extra Trees & Full + 800 m & 68 & 0.819 $\pm$ 0.017 & 0.825 \\
+Random Forest & Full + 800 m & 68 & 0.829 $\pm$ 0.012 & 0.830 \\
+XGBoost & Full + 800 m & 68 & 0.835 $\pm$ 0.010 & 0.838 \\
+LightGBM & Full + 800 m & 68 & 0.838 $\pm$ 0.012 & 0.839 \\
+Extra Trees & Full + 1200 m & 68 & 0.821 $\pm$ 0.016 & 0.826 \\
+Random Forest & Full + 1200 m & 68 & 0.828 $\pm$ 0.013 & 0.828 \\
+XGBoost & Full + 1200 m & 68 & 0.838 $\pm$ 0.013 & 0.841 \\
+LightGBM & Full + 1200 m & 68 & 0.839 $\pm$ 0.013 & 0.840 \\
+\bottomrule
+\end{tabular}%
+}
+\begin{minipage}{0.96\textwidth}\vspace{2pt}\scriptsize Note: Blocks are nominally 1.25 km (5 by 5 cells). Preprocessing is fit within each training fold. Values are mean $\pm$ standard deviation across five folds. These are exploratory weak-label diagnostics; within each recipe, models are ordered by descending macro-F1.\end{minipage}
+\end{table*}

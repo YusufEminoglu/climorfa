@@ -1,0 +1,5 @@
+LCZ weak labels are refined into local climate-morphology subtypes.
+5 m surface model, network context, vegetation, and figure-ground form are fused.
+Spatial CV, label audit, ablation, and scale tests control reviewer risk.
+LST, SVF/open-sky, and vegetation profiles validate climate relevance.
+Izmir subtypes are translated into climate-design priorities.

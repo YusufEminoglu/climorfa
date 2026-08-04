@@ -65,6 +65,14 @@ Obtain these from their original providers:
 
 See `docs/data_sources.md` for detailed access instructions.
 
+### Public repository policy
+
+This is a conventional public GitHub repository. Manuscript source, figures,
+analysis code, configuration, and reproducibility documentation are versioned
+directly in Git. Restricted or provider-licensed inputs, generated build
+artifacts, logs, and temporary files remain excluded by `.gitignore`; updating
+the remote repository does not remove files from a local working copy.
+
 ### Entry points
 
 ```bash
@@ -150,7 +158,7 @@ Google Cloud project.
 | **Hilmi Evren Erdin** | Department of City and Regional Planning, Dokuz Eylül University, İzmir, Türkiye | [![ORCID](https://img.shields.io/badge/ORCID-0000--0002--3350--8930-A6CE39)](https://orcid.org/0000-0002-3350-8930) |
 | **Esra Şırkı** | Department of City and Regional Planning, Siirt University, Siirt, Türkiye | [![ORCID](https://img.shields.io/badge/ORCID-0000--0001--7914--4821-A6CE39)](https://orcid.org/0000-0001-7914-4821) |
 
-Corresponding author: Mert Yavaş — merrtyavas@gmail.com
+Corresponding author: Yusuf Eminoğlu — yusuf.eminoglu@deu.edu.tr
 
 ---
 

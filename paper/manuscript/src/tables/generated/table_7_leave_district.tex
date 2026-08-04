@@ -1,0 +1,26 @@
+\begin{table*}[htbp]
+\centering
+\footnotesize
+\caption{Leave-one-district-out LightGBM weak-label robustness.}
+\label{tab:leave_district}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+Held-out district & $n$ & Classes & Accuracy & Balanced accuracy & Macro-F1 \\
+\midrule
+G\"uzelbah\c{c}e & 334 & 3 & 0.746 & 0.606 & 0.475 \\
+Konak & 266 & 3 & 0.831 & 0.817 & 0.598 \\
+Bal\c{c}ova & 161 & 4 & 0.795 & 0.684 & 0.682 \\
+Cig\u{g}li & 367 & 4 & 0.823 & 0.779 & 0.723 \\
+Gaziemir & 438 & 4 & 0.788 & 0.735 & 0.738 \\
+Bornova & 1419 & 4 & 0.780 & 0.764 & 0.771 \\
+Buca & 1082 & 4 & 0.807 & 0.783 & 0.774 \\
+Bayrakli & 322 & 4 & 0.792 & 0.768 & 0.775 \\
+Narl\i dere & 169 & 3 & 0.947 & 0.866 & 0.794 \\
+Karaba\u{g}lar & 390 & 4 & 0.851 & 0.799 & 0.807 \\
+Kar\c{s}\i yaka & 331 & 4 & 0.843 & 0.822 & 0.819 \\
+\bottomrule
+\end{tabular}%
+}
+\begin{minipage}{0.96\textwidth}\vspace{2pt}\scriptsize Note: Only districts with at least 100 diagnostic rows were evaluated. Macro-F1 uses classes present in the held-out district; LightGBM mean 0.723 and range 0.475--0.819. Random Forest, evaluated identically as a comparison baseline, reached mean macro-F1 0.700.\end{minipage}
+\end{table*}
