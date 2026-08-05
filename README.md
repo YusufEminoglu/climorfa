@@ -88,16 +88,16 @@ mamba activate climorfa
 This repository does **not** redistribute third-party geospatial data.
 Obtain these from their original providers:
 
-| Dataset | Source | Access |
-|---|---|---|
-| Surface model | Local administration | Local administration |
-| OpenStreetMap | OSM / Geofabrik | Overpass API |
-| Landsat 8/9 LST | USGS / Google Earth Engine | `ee.ImageCollection` |
-| Sentinel-2 | ESA / Google Earth Engine | `ee.ImageCollection` |
-| Dynamic World | Google / Earth Engine | `ee.ImageCollection` |
-| ETH Canopy Height | ETH Zurich / Earth Engine | `ee.Image` |
-| WUDAPT LCZ | WUDAPT | Download portal |
-| Building footprints | Local administration | Local administration |
+| Dataset | Source | Access | Validation |
+|---|---|---|---|
+| Surface model | Local administration | Local administration | Cross-checked against independent municipal floor-count fields |
+| Building footprints | Local administration | Local administration | Cross-checked against independent municipal floor-count fields |
+| OpenStreetMap | OSM / Geofabrik | Overpass API | Validated against the official IMM park inventory (log-count *r* = 0.93, log-area *r* = 0.91, *n* = 189 sites) |
+| Landsat 8/9 LST | USGS / Google Earth Engine | `ee.ImageCollection` | — |
+| Sentinel-2 | ESA / Google Earth Engine | `ee.ImageCollection` | Indirect: 569-cell manual audit of downstream predictions |
+| Dynamic World | Google / Earth Engine | `ee.ImageCollection` | Indirect: 569-cell manual audit of downstream predictions |
+| ETH Canopy Height | ETH Zurich / Earth Engine | `ee.Image` | Indirect: 569-cell manual audit of downstream predictions |
+| WUDAPT LCZ | WUDAPT | Download portal | Direct: 569-cell manual field audit (primary-tier exact agreement 8.3%) |
 
 See `docs/data_sources.md` for detailed access instructions.
 
