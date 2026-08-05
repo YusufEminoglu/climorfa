@@ -25,15 +25,51 @@ region, Türkiye.
 ## The analytical chain
 
 ```mermaid
-flowchart LR
-    A[Surface model · OSM · GEE · Population] --> B[Feature engineering<br/>374 fields, 250 m grid]
-    B --> C[Weak LCZ labels<br/>WUDAPT, confidence ≥ 0.60]
-    C --> D[Model training<br/>LightGBM · XGBoost · RF · ET]
-    D --> E[5-fold spatial CV<br/>1.25 km blocks]
-    E --> F[Explainability<br/>impurity importance · class medians]
-    F --> G[Leave-district-out<br/>11 districts]
-    G --> H[Climate validation<br/>LST · NDVI · NDBI]
-    H --> I[Manual audit<br/>569 cells]
+flowchart TD
+    subgraph SRC[" "]
+        direction LR
+        S1[5 m surface model]
+        S2[OSM<br/>buildings · roads · parks]
+        S3[GEE<br/>Sentinel-2 · Landsat LST<br/>Dynamic World · WorldCover · canopy]
+        S4[2024 population]
+    end
+
+    S1 --> FE
+    S2 --> FE
+    S3 --> FE
+    S4 --> FE
+
+    FE[Feature engineering<br/>374 fields · 250 m grid]
+    FE --> LAB[Weak LCZ labels<br/>WUDAPT, confidence ≥ 0.60]
+    FE --> REC[Nested recipes<br/>morphology → vegetation → green-blue → full]
+
+    LAB --> TRAIN
+    REC --> TRAIN
+    TRAIN[Model training<br/>5-fold spatial CV, 1.25 km blocks]
+
+    TRAIN --> M1[["LightGBM<br/>primary · 0.838 macro-F1"]]
+    TRAIN --> M2[XGBoost]
+    TRAIN --> M3[Random Forest]
+    TRAIN --> M4[Extra Trees]
+
+    M1 --> LODO[Leave-district-out<br/>11 districts · 0.723 macro-F1]
+    M1 --> XAI[Explainability<br/>gain importance · class medians]
+    M1 --> UNC[Out-of-fold uncertainty]
+
+    LODO --> SYN
+    XAI --> SYN
+    UNC --> SYN
+    SYN{{Evidence synthesis}}
+
+    SYN --> CLIM[Climate validation<br/>LST · NDVI · NDBI]
+    SYN --> AUDIT[Manual audit<br/>569 cells · 8.3% agreement]
+
+    classDef source fill:#eef3f2,stroke:#2F756E,color:#1a1a1a;
+    classDef primary fill:#2F756E,stroke:#1a4a44,color:#fff;
+    classDef synth fill:#f4e9d8,stroke:#b8894a,color:#1a1a1a;
+    class S1,S2,S3,S4 source;
+    class M1 primary;
+    class SYN synth;
 ```
 
 ---
