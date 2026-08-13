@@ -273,7 +273,7 @@ def main() -> None:
 
     reference_recipe = "baseline_d_no_green_2sfca"
     delta_rows: list[dict] = []
-    for model_name in ("random_forest", "extra_trees"):
+    for model_name in ("random_forest", "extra_trees", "xgboost", "lightgbm"):
         model_fold = fold_metrics_df[fold_metrics_df["model"] == model_name].pivot(
             index="fold",
             columns="recipe",

@@ -30,10 +30,8 @@ ATLAS_METRICS = [
 COLUMNS = [
     ("Typical", "median fabric"),
     ("Coverage+", "built cover"),
-    ("Height/Surface+", "vertical roughness"),
     ("Network+", "street grain"),
     ("Green+", "canopy + NDVI"),
-    ("Thermal edge", "coolest / hottest"),
 ]
 
 
@@ -96,12 +94,9 @@ def _select_atlas_tiles(df: pd.DataFrame) -> pd.DataFrame:
             rows = [
                 ("Typical", _pick_one(pool, typical_score, used, highest=True)),
                 ("Coverage+", _pick_one(pool, pool["building_coverage_exact"], used, highest=True)),
-                ("Height/Surface+", _pick_one(pool, _score(pool, ["height_proxy_aw_mean_m", "dsm_elevation_m_std"]), used, highest=True)),
                 ("Network+", _pick_one(pool, _score(pool, ["road_density_exact_m_per_km2", "network_intersection_density_per_km2"]), used, highest=True)),
                 ("Green+", _pick_one(pool, _score(pool, ["canopy_cover_gt2m_share", "s2_ndvi_mean"]), used, highest=True)),
             ]
-            thermal_score = pool["lst_c_median_mean"] if thermal_group == "hot" else -pool["lst_c_median_mean"]
-            rows.append(("Thermal edge", _pick_one(pool, thermal_score, used, highest=True)))
             for col_index, (prototype, row) in enumerate(rows):
                 item = row.to_dict()
                 item["prototype"] = prototype

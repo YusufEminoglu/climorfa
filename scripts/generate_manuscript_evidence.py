@@ -186,8 +186,11 @@ rows=[]
 model_rank={'lightgbm':0,'random_forest':1,'xgboost':2,'extra_trees':3}
 cm6=class_metrics[(class_metrics.recipe=='baseline_d_full_proxy_context')].copy()
 cm6['model_rank']=cm6.model.map(model_rank)
-for _,r in cm6.sort_values(['model_rank','class']).iterrows(): rows.append([MODEL_LABELS[r.model],f'LCZ {int(r["class"])}',int(r.support),f"{r.precision:.3f}",f"{r.recall:.3f}",f"{r.f1:.3f}"])
-write_table('table_6_class_metrics.tex','Pooled out-of-fold class performance for the primary 800 m recipe.','tab:class_metrics',['Model','Class','Support','Precision','Recall','F1'],rows,align='llrrrr')
+for model_key in sorted(cm6.model.unique(), key=lambda m: model_rank[m]):
+    sub=cm6[cm6.model.eq(model_key)].sort_values('class')
+    for _,r in sub.iterrows(): rows.append([MODEL_LABELS[r.model],f'LCZ {int(r["class"])}',int(r.support),f"{r.precision:.3f}",f"{r.recall:.3f}",f"{r.f1:.3f}"])
+    rows.append([MODEL_LABELS[model_key],'Macro avg',int(sub.support.sum()),f"{sub.precision.mean():.3f}",f"{sub.recall.mean():.3f}",f"{sub.f1.mean():.3f}"])
+write_table('table_6_class_metrics.tex','Pooled out-of-fold class performance for the primary 800 m recipe.','tab:class_metrics',['Model','Class','Support','Precision','Recall','F1'],rows,align='llrrrr',notes='Macro avg rows are the unweighted mean of the four class-level rows above them, matching the macro-F1 reported elsewhere.')
 rows=[]
 lodo_primary=lodo[lodo.model.eq(PRIMARY_MODEL)]
 for _,r in lodo_primary.sort_values('held_out_district').iterrows(): rows.append([repair_mojibake(r.held_out_district),int(r.test_rows),int(r.test_classes),f"{r.accuracy:.3f}",f"{r.balanced_accuracy:.3f}",f"{r.macro_f1_present_classes:.3f}"])
