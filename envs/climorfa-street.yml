@@ -1,0 +1,36 @@
+﻿# Windows post-install step 2 (required): apply envs/patches/solweig_gpu-2.0.0-metfile-regex.patch to
+#   <env>\Lib\site-packages (upstream 2.0.0 bug: own-met runs write metfile_X_Y.txt but run_utci_tiles only matches
+#   metfile_X_Y_YYYY-MM-DD, so every tile is skipped). e.g.  cd <env>\Lib\site-packages; git apply -p1 <patch>
+# Windows post-install step (required): copy envs/climorfa-street.sitecustomize.py to
+#   <env>\Lib\site-packages\sitecustomize.py  -- preloads torch's libiomp5md.dll (avoids fbgemm.dll WinError 127
+#   from the conda MKL / PyTorch-wheel OpenMP clash) and sets GDAL_DATA / PROJ_LIB.
+name: climorfa-street
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - gdal
+  - rasterio
+  - geopandas
+  - pyogrio
+  - shapely
+  - numpy
+  - scipy
+  - pandas
+  - xarray
+  - netcdf4
+  - numba
+  - matplotlib
+  - timezonefinder
+  - scikit-learn
+  - lightgbm
+  - shap
+  - pyproj
+  - tqdm
+  - pytest
+  - pip
+  - pip:
+    - --extra-index-url https://download.pytorch.org/whl/cu124
+    - torch==2.6.0+cu124
+    - solweig-gpu==2.0.0
+    - pythermalcomfort==4.7.0

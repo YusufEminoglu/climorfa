@@ -1,0 +1,183 @@
+# CLIMORFA Street — Field Campaign Error Model Configuration
+# Authoritative specification: docs/climorfa_street/field_error_model.md (v1.1)
+# Every parameter is tagged with either 'literature:<L#>' or 'assumption'.
+
+version: "1.1.0"
+is_synthetic: true
+provisional_geometry: true
+
+campaign_schedule:
+  days:
+    value: 2
+    tag: "literature:field_protocol"
+  dates:
+    value: ["2026-11-12", "2026-11-13"]
+    tag: "literature:field_protocol"
+  active_hours_local:
+    start: "10:00"
+    end: "16:00"
+    tag: "literature:field_protocol"
+  utc_offset_hours:
+    value: 3
+    tag: "literature:field_protocol"
+  devices:
+    count: 2
+    ids: ["DEV_A", "DEV_B"]
+    tag: "literature:field_protocol"
+  points_per_device:
+    value: 8
+    tag: "literature:field_protocol"
+  total_points:
+    value: 16
+    tag: "literature:field_protocol"
+  stop_duration_s:
+    value: 600       # 10 minutes total
+    tag: "literature:field_protocol"
+  discard_first_s:
+    value: 300       # 5 minutes stabilization discarded
+    tag: "literature:L4"
+  average_last_s:
+    value: 300       # 5 minutes averaging window
+    tag: "literature:L4"
+  logging_interval_s:
+    value: 10        # 10 s recording step
+    tag: "literature:field_protocol"
+  walk_time_s:
+    value: 180       # ~3 min between stops
+    tag: "assumption"
+  device_crossover_day2:
+    value: true      # Day 2 devices swap routes (§1 v1.1)
+    tag: "literature:field_protocol"
+
+# §1 & §3.5 Co-location Intercomparison Schedule
+colocation:
+  duration_per_condition_s:
+    value: 1200      # 20 minutes each for shade and sun
+    tag: "literature:field_protocol"
+  timings:
+    start:
+      shade_start_local: "09:20:00"
+      sun_start_local: "09:40:00"
+    end:
+      shade_start_local: "16:00:00"
+      sun_start_local: "16:20:00"
+    tag: "literature:field_protocol"
+  relative_offset_correction:
+    enabled: true
+    reference_device: "DEV_A"
+    tag: "literature:field_protocol"
+
+# §3.1 True State Error Model
+tmrt_error:
+  low_sun_scale_k:
+    value: 1.1232    # 6.29 / 5.60 = 1.1232 (L3 full-year / L1 summer)
+    tag: "literature:L1,L3"
+  rmse_targets:
+    canyon_AB:
+      value: 4.9     # 4.4 * 1.12
+      tag: "literature:L1,L3"
+    tree_C:
+      value: 6.1     # 5.4 * 1.12
+      tag: "literature:L1,L3"
+    open_D:
+      value: 7.0     # 6.2 * 1.12
+      tag: "literature:L1,L3"
+  bias_fraction_f_b:
+    value: 0.35      # |b| = f_b * RMSE_target (within sensitivity range 0.0 - 0.7)
+    tag: "assumption"
+    sensitivity: [0.0, 0.3, 0.7]
+  bias_directions:
+    sunlit: 1.0      # model underpredicts (obs > model => b_exp > 0)
+    shaded: -1.0     # model overpredicts (obs < model => b_exp < 0)
+    tag: "literature:L2"
+  station_effect_share:
+    value: 0.40      # sigma_u^2 / sigma_random^2
+    tag: "assumption"
+    sensitivity: [0.2, 0.6]
+  ar1_rho_10s:
+    value: 0.98      # ~8 min e-folding time at 10s steps
+    tag: "assumption"
+    sensitivity: [0.95, 0.99]
+  structural_variance_rule: "target_sq_minus_meas_sq" # sigma_struct^2 = target^2 - sigma_meas^2 (§3.1 v1.1)
+
+air_temperature_error:
+  station_std_c:
+    value: 1.25      # L3 Ta RMSE station component
+    tag: "literature:L3"
+  temporal_std_c:
+    value: 0.35      # temporal visit-level noise
+    tag: "assumption"
+  target_rmse_c:
+    value: 1.30
+    tag: "literature:L3"
+
+wind_error:
+  target_rmse_ms:
+    value: 0.77      # L3 Vcan RMSE
+    tag: "literature:L3"
+  model_type: "lognormal_multiplicative"
+  tag: "literature:L3"
+
+# §3.2 Device Reading Model
+device_sensor:
+  globe_diameter_m:
+    value: 0.0254    # 1 inch black globe (Kestrel 5400)
+    tag: "literature:L7"
+  globe_emissivity:
+    value: 0.95      # standard black globe emissivity
+    tag: "literature:L8"
+  globe_time_constant_tau_s:
+    value: 180       # 3 minutes for 1-inch globe
+    tag: "assumption"
+    sensitivity: [90, 300]
+  sensor_specifications:
+    ta_accuracy_c:
+      value: 0.5     # ±0.5 °C (GUM Type B: sigma = 0.5 / sqrt(3) = 0.2887)
+      tag: "literature:L7"
+    rh_accuracy_pct:
+      value: 2.0     # ±2.0 % (GUM Type B: sigma = 2.0 / sqrt(3) = 1.1547)
+      tag: "literature:L7"
+    wind_accuracy_relative:
+      value: 0.03    # max(3%, 0.1 m/s)
+      tag: "literature:L7"
+    wind_accuracy_absolute_ms:
+      value: 0.10
+      tag: "literature:L7"
+    tg_accuracy_c:
+      value: 1.4     # ±1.4 °C (GUM Type B: sigma = 1.4 / sqrt(3) = 0.8083)
+      tag: "literature:L7"
+  calibration_offset_share:
+    value: 0.50      # half constant calibration offset per device, half reading noise
+    tag: "assumption"
+
+# §3.3 Processing Parameters
+processing:
+  wind_height_sensor_m:
+    value: 1.1
+    tag: "literature:field_protocol"
+  wind_height_ref_m:
+    value: 10.0
+    tag: "literature:L8"
+  roughness_length_z0_m:
+    value: 0.05      # urban canopy aerodynamic roughness for log profile
+    tag: "assumption"
+  wind_10m_max_ms:
+    value: 17.0      # pythermalcomfort UTCI upper bound
+    tag: "literature:L8"
+  bootstrap_replicates:
+    value: 1000
+    tag: "assumption"
+  confidence_level:
+    value: 0.95
+    tag: "literature:field_protocol"
+
+# §3.4 Calibration Emergent Targets & Tolerances
+calibration_acceptance:
+  tmrt_tolerance_pct: 10.0   # ±10% of target
+  utci_rmse_range: [2.0, 4.5] # L3 station range 1.7 - 4.5
+  utci_target_rmse: 2.84
+  ta_rmse_target: 1.30
+  wind_rmse_target: 0.77
+  exposure_bias_signs:
+    sunlit_model_minus_obs: "< 0"
+    shaded_model_minus_obs: "> 0"

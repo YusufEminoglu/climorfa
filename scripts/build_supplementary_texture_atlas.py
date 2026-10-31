@@ -1,7 +1,7 @@
-"""Selection logic for the 6 x 8 supplementary texture/surface/canopy atlas
+"""Selection logic for the 4 x 8 supplementary texture/LST/canopy atlas
 cells. The standalone texture-only figure this used to build directly was
 retired and merged into `build_supplementary_texture_surface_canopy_atlas.py`
-(same 48 cells, same selection rule below, now paired with matched surface model and
+(same 32 cells, same selection rule below, now paired with matched LST and
 canopy rasters per cell instead of being a separate 48-panel figure) --
 this module now only provides the deterministic cell-selection functions
 that both the merged atlas and its own selected-tiles CSV depend on."""

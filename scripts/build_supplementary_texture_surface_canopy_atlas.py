@@ -1,7 +1,7 @@
-"""Build the merged supplementary atlas: for each of the same 48 selected
+"""Build the merged supplementary atlas: for each of the same 32 selected
 cells used throughout this paper's texture references, one tile shows
 figure-ground texture, Landsat 30 m LST (°C), and 10 m canopy height side by
-side. Same 8x6 selection grid and selection rule as before.
+side. Same 8x4 selection grid and selection rule as before.
 """
 from __future__ import annotations
 
@@ -228,7 +228,7 @@ def _plot_merged_tile(
 
 def build_texture_dsm_canopy_atlas(root: Path | str = Path(".")) -> dict[str, str]:
     root = Path(root)
-    out_dir = root / "outputs/diagnostics/supplementary_texture_dsm_canopy_atlas_2026-08-03"
+    out_dir = root / "outputs/diagnostics/supplementary_texture_lst_canopy_atlas_2026-08-03"
     fig_dir = root / "paper/figures/supplementary"
     out_dir.mkdir(parents=True, exist_ok=True)
     fig_dir.mkdir(parents=True, exist_ok=True)
@@ -236,7 +236,7 @@ def build_texture_dsm_canopy_atlas(root: Path | str = Path(".")) -> dict[str, st
     df = pd.read_csv(root / "data/03_processed/grid_250m_model_features_v8.csv")
     grid = gpd.read_file(root / "data/03_processed/analysis_grids.gpkg", layer="grid_250m")
     selected = _select_atlas_tiles(df)
-    selected.to_csv(out_dir / "fig_s1_texture_dsm_canopy_atlas_selected_tiles.csv", index=False)
+    selected.to_csv(out_dir / "fig_s1_texture_lst_canopy_atlas_selected_tiles.csv", index=False)
     rasters, limits = _collect_rasters(root, selected, grid)
 
     mpl.rcParams.update({"font.family": "DejaVu Sans"})
@@ -309,12 +309,12 @@ def build_texture_dsm_canopy_atlas(root: Path | str = Path(".")) -> dict[str, st
     cb1.ax.tick_params(labelsize=6.8)
     cb2.ax.tick_params(labelsize=6.8)
 
-    png = fig_dir / "fig_s1_texture_dsm_canopy_atlas_48_cells.png"
+    png = fig_dir / "fig_s1_texture_lst_canopy_atlas_32_cells.png"
     fig.savefig(png, dpi=300, facecolor="white")
     plt.close(fig)
 
     qa = {
-        "figure": "fig_s1_texture_dsm_canopy_atlas_48_cells",
+        "figure": "fig_s1_texture_lst_canopy_atlas_32_cells",
         "date": "2026-08-05",
         "panel_count": 32,
         "layout": "4 columns x 8 rows, 3 raster/vector subpanels (texture, LST, canopy) per selected cell",
@@ -322,7 +322,7 @@ def build_texture_dsm_canopy_atlas(root: Path | str = Path(".")) -> dict[str, st
         "column_rule": "Four deterministic prototypes: median fabric, high coverage, high network density, and high green signal.",
         "raster_limits": limits,
         "palette_roots": ["#87D8CD", "#F978A5", "#F4AB55", "#ACA49C"],
-        "selected_tiles_csv": str(out_dir / "fig_s1_texture_dsm_canopy_atlas_selected_tiles.csv"),
+        "selected_tiles_csv": str(out_dir / "fig_s1_texture_lst_canopy_atlas_selected_tiles.csv"),
         "png": str(png),
         "source_paths": [
             "data/03_processed/grid_250m_model_features_v8.csv",
@@ -332,8 +332,8 @@ def build_texture_dsm_canopy_atlas(root: Path | str = Path(".")) -> dict[str, st
             CANOPY_PATH,
         ],
     }
-    (out_dir / "fig_s1_texture_dsm_canopy_atlas_qa.json").write_text(json.dumps(qa, indent=2), encoding="utf-8")
-    return {"png": str(png), "qa": str(out_dir / "fig_s1_texture_dsm_canopy_atlas_qa.json")}
+    (out_dir / "fig_s1_texture_lst_canopy_atlas_qa.json").write_text(json.dumps(qa, indent=2), encoding="utf-8")
+    return {"png": str(png), "qa": str(out_dir / "fig_s1_texture_lst_canopy_atlas_qa.json")}
 
 
 if __name__ == "__main__":

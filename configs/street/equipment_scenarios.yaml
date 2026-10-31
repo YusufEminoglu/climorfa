@@ -1,0 +1,271 @@
+# CLIMORFA Street — Equipment Scenarios Configuration (WP0.5-A3)
+# Authoritative specification: docs/climorfa_street/wp/WP0.5A3_equipment.md
+# Every parameter is tagged with either 'literature:<L#>' or 'assumption'.
+
+version: "1.0.0"
+is_synthetic: true
+provisional_geometry: true
+
+campaign_schedule:
+  days:
+    value: 2
+    tag: "literature:field_protocol"
+  dates:
+    value: ["2026-11-12", "2026-11-13"]
+    tag: "literature:field_protocol"
+  active_hours_local:
+    start: "10:00"
+    end: "16:00"
+    total_minutes: 360
+    tag: "literature:field_protocol"
+  utc_offset_hours:
+    value: 3
+    tag: "literature:field_protocol"
+  devices_count:
+    value: 2
+    ids: ["DEV_A", "DEV_B"]
+    tag: "literature:field_protocol"
+  walk_time_s:
+    value: 180      # 3 minutes walking between stops
+    tag: "assumption"
+
+sampling_designs:
+  planned:
+    points: 16
+    points_per_device: 8
+    visits_per_day: 3
+    days: 2
+    nominal_stops: 96
+    tag: "literature:field_protocol"
+  extended:
+    points: 24
+    points_per_device: 12
+    visits_per_day: 4
+    days: 2
+    nominal_stops: 192
+    tag: "literature:field_protocol"
+
+# §3.1 True State Targets (composite literature baseline)
+tmrt_targets:
+  canyon_A:
+    value: 4.90
+    tag: "literature:L1,L3"
+  canyon_B:
+    value: 4.90
+    tag: "literature:L1,L3"
+  tree_C:
+    value: 6.10
+    tag: "literature:L1,L3"
+  open_D:
+    value: 7.00
+    tag: "literature:L1,L3"
+  overall_composite:
+    value: 5.60
+    tag: "literature:L1"
+  bias_fraction_f_b:
+    value: 0.35
+    tag: "assumption"
+  station_effect_share:
+    value: 0.40
+    tag: "assumption"
+
+# Performance target per §4
+performance_target:
+  ci_half_width_max_k:
+    value: 1.50
+    tag: "literature:field_error_model"
+  target_rule: "overall_and_type_rmse_ci_half_width_le_1_5k"
+
+# Equipment Scenarios (S0 through S4)
+scenarios:
+  S0:
+    id: "S0"
+    name: "Kestrel 5400 x2 (25.4 mm Black Globe, Relative Co-location Only)"
+    description: "Baseline WP0.5-A2 setup. Two Kestrel 5400 HSTs with relative field co-location correction but no absolute isothermal calibration."
+    globe:
+      type: "black_globe"
+      diameter_m: 0.0254
+      emissivity: 0.95
+      convection_formula: "ISO 7726:1998 standard forced/natural convection (D=0.0254 m)"
+      time_constant_tau_s: 180
+      stop_duration_s: 600       # 10 min (5 min stabilization + 5 min averaging)
+      discard_first_s: 300
+      average_last_s: 300
+      tag: "literature:L7,L8"
+    sensors:
+      ta:
+        accuracy_c: 0.50          # ±0.5 °C manufacturer spec
+        sigma_c: 0.2887           # 0.50 / sqrt(3)
+        tag: "literature:L7"
+      tg:
+        accuracy_c: 1.40          # ±1.4 °C manufacturer spec
+        sigma_c: 0.8083           # 1.40 / sqrt(3)
+        tag: "literature:L7"
+      wind:
+        accuracy_rel: 0.03        # max(3%, 0.10 m/s)
+        accuracy_abs_ms: 0.10
+        sigma_ms: 0.0577          # 0.10 / sqrt(3)
+        tag: "literature:L7"
+    calibration:
+      isothermal_chamber: false
+      field_colocation: true
+      reference_device: "DEV_A"
+      device_offset_share: 0.50
+      tag: "literature:field_protocol"
+    timing:
+      stop_duration_min: 10
+      walk_time_min: 3
+      cycle_time_per_stop_min: 13
+      feasible_visits_per_day_16pts: 3     # 360 min / (8 pts * 13 min = 104 min) = 3.46 -> 3
+      feasible_visits_per_day_24pts: 2     # 360 min / (12 pts * 13 min = 156 min) = 2.31 -> 2
+
+  S1:
+    id: "S1"
+    name: "Kestrel 5400 x2 + Isothermal Calibration + Co-location"
+    description: "S0 hardware augmented with pre- and post-campaign isothermal chamber calibration. Eliminates absolute Tg-Ta and Ta offsets down to repeatability limit."
+    globe:
+      type: "black_globe"
+      diameter_m: 0.0254
+      emissivity: 0.95
+      convection_formula: "ISO 7726:1998 standard forced/natural convection (D=0.0254 m)"
+      time_constant_tau_s: 180
+      stop_duration_s: 600
+      discard_first_s: 300
+      average_last_s: 300
+      tag: "literature:L7,L8"
+    sensors:
+      ta:
+        accuracy_c: 0.50
+        sigma_c: 0.2887
+        tag: "literature:L7"
+      tg:
+        accuracy_c: 1.40
+        sigma_c: 0.8083
+        tag: "literature:L7"
+      wind:
+        accuracy_rel: 0.03
+        accuracy_abs_ms: 0.10
+        sigma_ms: 0.0577
+        tag: "literature:L7"
+    calibration:
+      isothermal_chamber: true
+      isothermal_repeatability_sigma_ta_c: 0.10      # assumed spec-limited repeatability
+      isothermal_repeatability_sigma_tg_minus_ta_c: 0.10 # assumed spec-limited repeatability
+      field_colocation: true
+      reference_device: "DEV_A"
+      tag: "assumption"
+    timing:
+      stop_duration_min: 10
+      walk_time_min: 3
+      cycle_time_per_stop_min: 13
+      feasible_visits_per_day_16pts: 3
+      feasible_visits_per_day_24pts: 2
+
+  S2:
+    id: "S2"
+    name: "38 mm Flat-Grey Globe + Class-A Pt100 + Aspirated Ta + Sonic/Cup + Isothermal + Co-location"
+    description: "38 mm table-tennis style grey globe (Thorsson et al. 2007) with IEC 60751 class-A Pt100, aspirated shielded Ta, precision anemometer, isothermal chamber calibration, and co-location."
+    globe:
+      type: "flat_grey_globe"
+      diameter_m: 0.038
+      emissivity: 0.95
+      convection_formula: "ISO 7726:1998 forced convection form with D=0.038 m per Thorsson et al. 2007 (hc = 6.3 * v^0.6 / 0.038^0.4 = 23.215 * v^0.6)"
+      citation: "Thorsson, Lindberg, Eliasson, Holmer (2007) Int. J. Climatol. 27:1983–1993, doi:10.1002/joc.1537"
+      time_constant_tau_s: 200
+      stop_duration_s: 600
+      discard_first_s: 300
+      average_last_s: 300
+      tag: "literature:L4"
+    sensors:
+      ta:
+        sensor_type: "aspirated_shielded_thermistor_or_pt100"
+        accuracy_c: 0.20          # ±0.2 °C precision aspirated sensor
+        sigma_c: 0.1155           # 0.20 / sqrt(3)
+        tag: "assumption"
+      tg:
+        sensor_type: "iec_60751_class_a_pt100"
+        accuracy_c: 0.19          # ±(0.15 + 0.002*|20|) = ±0.19 °C at 20 °C
+        sigma_c: 0.1097           # 0.19 / sqrt(3)
+        tag: "literature:IEC_60751"
+      wind:
+        sensor_type: "cup_or_sonic_anemometer"
+        accuracy_rel: 0.02        # ±(0.1 m/s + 2%)
+        accuracy_abs_ms: 0.10
+        sigma_ms: 0.0878          # (0.10 + 0.02 * 2.6) / sqrt(3)
+        tag: "assumption"
+    calibration:
+      isothermal_chamber: true
+      isothermal_repeatability_sigma_ta_c: 0.08      # Class-A repeatability
+      isothermal_repeatability_sigma_tg_minus_ta_c: 0.08 # Class-A repeatability
+      field_colocation: true
+      reference_device: "DEV_A"
+      tag: "literature:IEC_60751"
+    timing:
+      stop_duration_min: 10
+      walk_time_min: 3
+      cycle_time_per_stop_min: 13
+      feasible_visits_per_day_16pts: 3
+      feasible_visits_per_day_24pts: 2
+
+  S3:
+    id: "S3"
+    name: "150 mm Standard Black Globe + S2 Precision Sensors + Isothermal + Co-location"
+    description: "Standard ISO 7726 150 mm black copper globe with S2 precision sensors. Exhibits lowest globe amplification (~5.3x at 2.6 m/s) but long 20-30 min thermal time constant forcing 25 min stops."
+    globe:
+      type: "standard_black_globe"
+      diameter_m: 0.150
+      emissivity: 0.95
+      convection_formula: "ISO 7726:1998 standard forced convection with D=0.150 m (hc = 6.3 * v^0.6 / 0.150^0.4 = 13.49 * v^0.6)"
+      time_constant_tau_s: 1500  # 25 min (within 20-30 min range of ISO 7726)
+      stop_duration_s: 1500      # 25 min (20 min equilibration + 5 min averaging)
+      discard_first_s: 1200      # 20 min equilibration
+      average_last_s: 300        # 5 min averaging
+      tag: "literature:L8"
+    sensors:
+      ta:
+        sensor_type: "aspirated_shielded_thermistor_or_pt100"
+        accuracy_c: 0.20
+        sigma_c: 0.1155
+        tag: "assumption"
+      tg:
+        sensor_type: "iec_60751_class_a_pt100"
+        accuracy_c: 0.19
+        sigma_c: 0.1097
+        tag: "literature:IEC_60751"
+      wind:
+        sensor_type: "cup_or_sonic_anemometer"
+        accuracy_rel: 0.02
+        accuracy_abs_ms: 0.10
+        sigma_ms: 0.0878
+        tag: "assumption"
+    calibration:
+      isothermal_chamber: true
+      isothermal_repeatability_sigma_ta_c: 0.08
+      isothermal_repeatability_sigma_tg_minus_ta_c: 0.08
+      field_colocation: true
+      reference_device: "DEV_A"
+      tag: "literature:IEC_60751"
+    timing:
+      stop_duration_min: 25
+      walk_time_min: 3
+      cycle_time_per_stop_min: 28
+      feasible_visits_per_day_16pts: 1     # 360 min / (8 pts * 28 min = 224 min) = 1.61 -> 1 full visit/day
+      feasible_visits_per_day_24pts: 1     # 360 min / (12 pts * 28 min = 336 min) = 1.07 -> 1 full visit/day
+      total_feasible_stops_16pts_2days: 32 # 16 pts * 1 vpd * 2 d
+      total_feasible_stops_24pts_2days: 48 # 24 pts * 1 vpd * 2 d
+
+  S4:
+    id: "S4"
+    name: "Six-Directional Net Radiometer Method (Integral Radiation Reference)"
+    description: "Integral radiation reference method measuring 6-directional shortwave and longwave fluxes (e.g. Kipp & Zonen CNR4 array or MaRTy mobile cart). Direct Tmrt measurement free of globe convective amplification."
+    direct_radiation:
+      method: "six_directional_integral_fluxes"
+      tmrt_error_sigma_k: 1.00     # modeled Tmrt uncertainty 1.0 K (tagged as assumption per WP spec)
+      provenance: "Assumption per WP0.5-A3 prompt; benchmark for Kipp & Zonen CNR4 / MaRTy setups"
+      tag: "assumption"
+    timing:
+      stop_duration_min: 10
+      walk_time_min: 3
+      cycle_time_per_stop_min: 13
+      feasible_visits_per_day_16pts: 3
+      feasible_visits_per_day_24pts: 2

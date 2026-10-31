@@ -1,0 +1,13 @@
+--- a/solweig_gpu/utci_process.py	2026-10-29 19:57:50.505105000 +0300
++++ b/solweig_gpu/utci_process.py	2026-10-29 19:57:50.532067900 +0300
+@@ -98,8 +98,8 @@
+     """
+ 
+     if is_metfile:
+-        # look for metfile_X_Y_DATE
+-        match = re.search(r'metfile_(\d+)_(\d+)_\d{4}-\d{2}-\d{2}', filename)
++        # look for metfile_X_Y or metfile_X_Y_DATE
++        match = re.search(r'metfile_(\d+)_(\d+)', filename)
+     else:
+         # look for ..._X_Y.tif
+         match = re.search(r'_(\d+)_(\d+)', filename)

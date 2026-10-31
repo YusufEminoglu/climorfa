@@ -168,7 +168,7 @@ climorfa/
 | **10** — Leave-district-out transfer | District and mahalle accuracy maps |
 | **11** — Audited validation | Confusion heatmaps, tier comparison |
 
-**Supplementary:** S1 — texture surface canopy atlas (48 cells); S2 — feature
+**Supplementary:** S1 — texture LST canopy atlas (32 cells); S2 — feature
 quality diagnostics; S3 — spatial fold diagnostics.
 
 ---
@@ -190,7 +190,6 @@ Google Cloud project.
 | | | |
 |---|---|---|
 | **Yusuf Eminoğlu** | Department of City and Regional Planning, Dokuz Eylül University, İzmir, Türkiye | [![ORCID](https://img.shields.io/badge/ORCID-0009--0005--6000--2934-A6CE39)](https://orcid.org/0009-0005-6000-2934) |
-| **Mert Yavaş** | Department of City and Regional Planning, Dokuz Eylül University, İzmir, Türkiye | [![ORCID](https://img.shields.io/badge/ORCID-0009--0001--0477--2599-A6CE39)](https://orcid.org/0009-0001-0477-2599) |
 | **Hilmi Evren Erdin** | Department of City and Regional Planning, Dokuz Eylül University, İzmir, Türkiye | [![ORCID](https://img.shields.io/badge/ORCID-0000--0002--3350--8930-A6CE39)](https://orcid.org/0000-0002-3350-8930) |
 | **Esra Şırkı** | Department of City and Regional Planning, Siirt University, Siirt, Türkiye | [![ORCID](https://img.shields.io/badge/ORCID-0000--0001--7914--4821-A6CE39)](https://orcid.org/0000-0001-7914-4821) |
 
@@ -204,7 +203,7 @@ The manuscript is under review. Please cite the repository:
 
 ```bibtex
 @software{climorfa_2026,
-  author    = {Eminoğlu, Yusuf and Yavaş, Mert and Erdin, Hilmi Evren and Şırkı, Esra},
+  author    = {Eminoğlu, Yusuf and Erdin, Hilmi Evren and Şırkı, Esra},
   title     = {{CLIMORFA}: a climate-morphology evidence baseline for {Izmir}},
   year      = {2026},
   note      = {Manuscript under review},
