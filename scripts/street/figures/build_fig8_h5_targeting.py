@@ -264,6 +264,16 @@ def pixel_weights(arr: dict, weights: dict, med_w: float) -> np.ndarray:
     return w
 
 
+def tile_place(s_seg: pd.DataFrame, tid: str) -> str:
+    """District of most S segments in the tile, in Turkish title case, for the panel (c) header ('' if none)."""
+    v = s_seg.loc[s_seg["tile_id"] == tid, "district"].dropna().astype(str)
+    v = v[v.str.lower() != "unknown"]
+    if v.empty:
+        return ""
+    low = v.mode().iloc[0].replace("I", "\u0131").replace("\u0130", "i").lower()
+    return {"i": "\u0130", "\u0131": "I"}.get(low[0], low[0].upper()) + low[1:]
+
+
 def pick_tile(rs: H5Results, d: dict) -> tuple[dict | None, dict]:
     from scripts.street.h5.evaluate_h5 import load_grid_weights   # the analysis's own weight builder (A4)
     gp = rs.grid_path()
@@ -355,12 +365,13 @@ def draw_outcome(ax, d, chk):
                linewidth=1.0, zorder=5)
     thr = 1.5 * zm
     ax.axvline(thr, color=P["muted"], ls=(0, (4, 3)), lw=1.1, zorder=2)
-    ax.text(thr - 0.01 * thr, 1.62, "1.5 \u00d7 Z median (lock)", ha="right", va="bottom", fontsize=6.6, color=P["muted"],
-            style="italic", bbox=dict(facecolor="white", edgecolor="none", pad=0.6, alpha=0.85), zorder=6)
-    ax.text(zm, yz + 0.30, "median", ha="center", va="bottom", fontsize=6.6, color=P["ink"], zorder=6)
-    ax.text((lo + hi) / 2, yz - 0.42, "95 % of draws", ha="center", va="top", fontsize=6.6, color=P["taupe_dark"],
-            zorder=6)
     xmax = max(s_, thr, hi) * 1.12
+    pad = 0.015 * xmax
+    lock_left = thr > 0.5 * xmax
+    ax.text(thr - pad if lock_left else thr + pad, 1.62, "1.5 \u00d7 Z median (lock)", ha="right" if lock_left else "left",
+            va="bottom", fontsize=6.6, color=P["muted"], style="italic", zorder=6)
+    ax.text(1.0, 1.03, "Z: bar median, bracket 95 % of draws", transform=ax.transAxes, ha="right", va="bottom",
+            fontsize=6.6, color=P["taupe_dark"], zorder=6)
     ax.set_xlim(0, xmax)
     ax.set_ylim(-0.95, 1.95)
     ax.set_yticks([yz, ys])
@@ -372,7 +383,7 @@ def draw_outcome(ax, d, chk):
     for s__ in ax.spines.values():
         s__.set_color(P["grid"]); s__.set_linewidth(1.0)
     unit = "" if k == 0 else f" (\u00d710$^{{{k}}}$)"
-    ax.set_xlabel(f"Weighted reduction \u0394(M2_38 \u00d7 w){unit}", fontsize=8.6, color=P["ink"], labelpad=3)
+    ax.set_xlabel(f"Weighted reduction \u0394(M2\u2083\u2088 \u00d7 w){unit}", fontsize=8.6, color=P["ink"], labelpad=3)
     return dict(scale_exp=k, s=s_ * f, z_median=zm * f, z_range=[lo * f, hi * f], line=thr * f)
 
 
@@ -425,9 +436,9 @@ def draw_close(axs, a, cax_abs, cax_d, fig):
     S.tile_readout(axs[0], f"UTCI {stats['utci_before_median']:.1f}\u00b0C", x=0.04, y=0.04)
     S.tile_readout(axs[1], f"UTCI {stats['utci_after_median']:.1f}\u00b0C", x=0.04, y=0.04)
     S.tile_readout(axs[2], f"\u0394UTCI {F5.sgn(stats['dutci_cooled_median'])}\u00b0C on cooled cells\n"
-                           f"\u0394M2_38 {F5.sgn(stats['dm2_mean_ps'], 2)} h per PS cell", x=0.04, y=0.04)
+                           f"\u0394M2\u2083\u2088 {F5.sgn(stats['dm2_mean_ps'], 2)} h per cell", x=0.04, y=0.04)
     add_win_scale(axs[0], ext)
-    for cax, cmap, norm, lab, ticks in ((cax_abs, CMAP_ABS, norm_a, "UTCI at 15:00, PS cells (\u00b0C)", None),
+    for cax, cmap, norm, lab, ticks in ((cax_abs, CMAP_ABS, norm_a, "UTCI at 15:00 (\u00b0C)", None),
                                         (cax_d, CMAP_D, norm_d, "\u0394UTCI after \u2212 before (\u00b0C)", None)):
         sm = mpl.cm.ScalarMappable(cmap=cmap, norm=norm)
         cb = fig.colorbar(sm, cax=cax, orientation="horizontal")
@@ -482,12 +493,12 @@ def draw_card(ax, rs, d, verdict, chk, h_in):
          f"{d['n_draws']} length-weighted draws (A5)"),
         ("S / Z, median of draws", f"{num(t['median'], 2)}  " + (CHECK if verdict else CROSS),
          f"95 % of draws {F5.ci_txt(t['ci_95'])} \u00b7 lock: \u2265 {t.get('threshold', 1.5):g}"),
-        ("Jaccard S \u2229 Z", f"{num(jz['median'], 2)}",
-         f"95 % {F5.ci_txt(jz['ci_95'])} \u00b7 by length {num(jl['median'], 2)}"),
+        ("Jaccard S \u2229 Z", f"{num(jz['median'], 3)}",
+         f"95 % {F5.ci_txt(jz['ci_95'], 3)} \u00b7 by length {num(jl['median'], 3)}"),
         ("additive vs exact S", f"{num(chk['rel_diff'] * 100, 1)} %",
          f"{len(rep['validation']['tiles'])} tiles \u00b7 limit {rep['validation']['rel_tol'] * 100:g} % (A10) \u00b7 "
-         f"{chk['status']}"),
-        ("\u0394M2_38 = 0 under P (A11)", f"{num(a11['share_dm2_38_zero_in_P']['all_segments'] * 100, 0)} %",
+         f"{'H5 test stands' if chk['status'] == 'test' else 'descriptive only'}"),
+        ("\u0394M2\u2083\u2088 = 0 under P (A11)", f"{num(a11['share_dm2_38_zero_in_P']['all_segments'] * 100, 0)} %",
          f"companion S / Z: cell-hours {comp('cell_h38')} \u00b7 mean UTCI {comp('mean_utci_b15')}"),
     ]
     for lab, val, note in rows:
@@ -558,10 +569,10 @@ def build(rs: H5Results):
     sS = rs.summary.get("scenario_S", {})
     zc = rs.summary.get("scenario_Z", {}).get("target_lcz")
     zlab = LCZ_LABEL.get(int(zc), zc) if zc is not None else "?"
-    tag_box(axA, f"{DAY} \u00b7 S: hottest 10 % of segment length by M2_38,\n"
+    tag_box(axA, f"{DAY} \u00b7 S: hottest 10 % of segment length by M2\u2083\u2088,\n"
                  f"{sS.get('n_segments', len(d['s'])):,} segments \u00b7 Z: same budget N in LCZ {zlab},\n"
                  f"{d['zg'].shape[0]:,} segments in \u2265 1 of {d['n_draws']} draws\n"
-                 f"Jaccard S \u2229 Z: median {num(jz['median'], 2)} {F5.ci_txt(jz['ci_95'])}",
+                 f"Jaccard S \u2229 Z: median {num(jz['median'], 3)} {F5.ci_txt(jz['ci_95'], 3)}",
             x=2.40 / MAP_W, y=-0.035, va="top")
 
     # (b) outcome strip
@@ -591,8 +602,9 @@ def build(rs: H5Results):
     cstats = {}
     if best is not None:
         cstats = draw_close(axC, best, cax_abs, cax_d, fig)
+        place = tile_place(d["s"], best["tid"])
         fig.text((L + 1.5 * TILE + TGAP) / FW, (y_tile + TILE + 0.07) / FH,
-                 f"{best['tid']} \u00b7 300 m window \u00b7 15:00 \u00b7 planted crowns outlined "
+                 f"{place + ' \u00b7 ' if place else ''}300 m window \u00b7 15:00 \u00b7 planted crowns outlined "
                  f"(dotted: before planting)", ha="center", va="bottom", fontsize=7.5, fontweight="bold",
                  color=P["ink"])
     else:

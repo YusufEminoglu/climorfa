@@ -5,7 +5,8 @@ Run from the repo root:
         -> paper/figures/v2/main/graphical_abstract_v2.png
     (add ``--qa <dir>`` to also write the QA json and a 1328 px downsample into <dir>; nothing else is written)
 
-Composition: one flat LCZ tile, the two real 1 km close-ups that carry it, three computed numbers.  Sheet 13.0 x 5.2 in
+Composition: one flat LCZ tile, the two real 1 km close-ups that carry it, three computed numbers.  The two tiles come from
+the stated rule in ``select_ga_tiles`` (same class, share >= 70 % on both), not from the eye.  Sheet 13.0 x 5.2 in
 at 300 dpi (Elsevier landscape 1328 x 531 px and above).  The close-ups are drawn by ``build_fig4_street_utci.draw_tile``,
 so grammar and anomaly ramp are those of Fig 4 (c); the anomaly is taken against the day median of all segments.
 
@@ -13,7 +14,8 @@ Type: ``climorfa_style.scale_text`` is NOT used.  Its x1.4 factor with a 10.4 pt
 size is set directly with a floor of MIN_PT = 11 pt on the 13 in sheet, checked by the QA.
 
 Every number comes from the final files (h1_results.json, final_20261030/seg_metrics_*.parquet, the 2 m tiles, the LCZ
-raster through the Fig 1 route).  The build stops on anything that is not the final 427-tile run.
+raster through the Fig 1 route).  The build stops on anything that is not the final 427-tile run, and on a tile whose
+most frequent class is not LCZ, or covers less than MIN_SHARE, of its pixels.
 Double-anonymised: no names, no tool names, no URLs in the figure.
 """
 from __future__ import annotations
@@ -43,8 +45,10 @@ FINAL = ROOT / "data/street/analysis/final_20261030"
 P = S.PALETTE
 
 DAY, CALM = "IMBAT", "CALM"
-LCZ = 8
-TILES = [("T_0512_4255", "Alsancak"), ("T_0503_4262", "\u00c7i\u011fli AOSB")]
+LCZ = 3
+MIN_SHARE = 0.70
+TILES = [("T_0508_4248", "Karaba\u011flar"), ("T_0510_4252", "Konak")]   # select_ga_tiles.py; first tile = Figs 1 (d) and 4 c.2
+LCZ_FILL, LCZ_DARK, LCZ_LIGHT = S.CLASS_COLORS[LCZ], P[S.CLASS_DARK_KEY[LCZ]], P["teal_light"]
 QA_THUMB_W = 1328
 
 # ---- sheet geometry (inches) ----------------------------------------------------------------
@@ -57,11 +61,12 @@ GAP_TILE = 0.12
 GAP_R = 0.32                      # close-ups -> numbers
 X_T0 = ML + FLAT_W + GAP_ARROW
 X_R = X_T0 + 2 * TILE + GAP_TILE + GAP_R
-Y_TILE = 0.80                     # bottom of the close-ups
+Y_TILE = 0.86                     # bottom of the close-ups
 Y_TOP = Y_TILE + TILE             # top of the close-ups
 BAR_H = 0.085                     # LCZ share bar, sits on the close-up
 Y_HEAD = Y_TOP + BAR_H + 0.055    # baseline of the place header
 Y_TITLE = FH - 0.15               # top of the headline
+Y_ROWS = (0.645, 0.43, 0.215)     # baselines of the three rows under the tiles; the side columns end on the same lines
 
 # ---- type (pt on the 13 in sheet) -----------------------------------------------------------
 MIN_PT = 11.0
@@ -74,6 +79,7 @@ FS_LABEL = 13.0
 FS_PLACE = 14.0
 FS_SMALL = 12.0
 FS_KEY = 11.5
+R2_LCZ_COLOR = P["taupe_dark"]    # no class colour: the R2 values are city-wide, over every LCZ class
 
 
 # =============================================================================================
@@ -96,8 +102,8 @@ def load_numbers() -> dict:
 
 
 def tile_facts(tid: str, tiles: gpd.GeoDataFrame, lcz_arr, lcz_tr, met: pd.DataFrame) -> dict:
-    """LCZ share (the Fig 1 rule: most frequent global LCZ class of the 50 m pixels in the tile), median building height
-    (the Fig 1 rule: h >= 2 m on land) and the median sky view factor of the tile's segments."""
+    """LCZ share (the Fig 1 rule: most frequent global LCZ class of the 50 m pixels in the tile), median building height and
+    building cover (the Fig 1 rule: h >= 2 m on land) and the median sky view factor of the tile's segments."""
     x0, y0 = float(tiles.loc[tid, "x0"]), float(tiles.loc[tid, "y0"])
     r0 = int(round(((y0 + 1000.0) - lcz_tr.f) / lcz_tr.e))
     c0 = int(round((x0 - lcz_tr.c) / lcz_tr.a))
@@ -107,13 +113,15 @@ def tile_facts(tid: str, tiles: gpd.GeoDataFrame, lcz_arr, lcz_tr, met: pd.DataF
     hist = {int(a): int(b) for a, b in zip(vals, cnts)}
     if int(vals[cnts.argmax()]) != LCZ:
         raise SystemExit(f"{tid}: most frequent class is not LCZ {LCZ}: {hist}")
+    if hist[LCZ] / sum(hist.values()) < MIN_SHARE:
+        raise SystemExit(f"{tid}: LCZ {LCZ} covers less than {MIN_SHARE:.0%} of the tile: {hist}")
     h, _, lm = F1.tile_arrays(tid)
     bld = (h >= F1.BLD_VMIN) & (lm > 0.5)
     seg = pyogrio.read_dataframe(FINAL / "segments.gpkg", layer="segments", read_geometry=False,
                                  columns=["seg_id", "tile_id"], where=f"tile_id = '{tid}'")
     svf = met.loc[met["seg_id"].isin(seg["seg_id"]), "svf_med"]
     return dict(tile_id=tid, lcz_share=hist[LCZ] / sum(hist.values()), lcz_hist=hist, med_h=float(np.median(h[bld])),
-                med_svf=float(svf.median()), n_segments=int(len(seg)))
+                bld_cover=float(bld.sum() / (lm > 0.5).sum()), med_svf=float(svf.median()), n_segments=int(len(seg)))
 
 
 # =============================================================================================
@@ -164,7 +172,7 @@ def build(days: dict, data: dict):
 
     # ---- left: one LCZ label ----------------------------------------------------------------
     y_flat = Y_TOP - FLAT_W + BAR_H
-    rect(fig, ML, y_flat, FLAT_W, FLAT_W, S.CLASS_COLORS[LCZ], zorder=2)
+    rect(fig, ML, y_flat, FLAT_W, FLAT_W, LCZ_FILL, zorder=2)
     fig.add_artist(mpatches.Rectangle((ML, y_flat), FLAT_W, FLAT_W, transform=fig.dpi_scale_trans, fill=False,
                                       edgecolor=P["ink"], linewidth=0.9, zorder=3))
     cx = ML + FLAT_W / 2.0
@@ -184,7 +192,7 @@ def build(days: dict, data: dict):
     for k, (tid, place) in enumerate(TILES):
         x = X_T0 + k * (TILE + GAP_TILE)
         ax = S.inch_axes(fig, x, Y_TILE, TILE, TILE)
-        st = F4.draw_tile(ax, tid, DAY, tiles, cmap, norm, "anomaly", med_d, scalebar=(k == 1))
+        st = F4.draw_tile(ax, tid, DAY, tiles, cmap, norm, "anomaly", med_d, scalebar=True)   # same 1 km scale, shown on both
         for t in list(ax.texts)[:2]:        # the Fig 4 tag and read-out: their content moves to the header / caption
             t.remove()
         for t in ax.texts:                  # the 200 m scale label is the only text left
@@ -196,43 +204,47 @@ def build(days: dict, data: dict):
 
         # header: place + LCZ share, then the share bar resting on the tile
         tx(fig, x, Y_HEAD, place, FS_PLACE, weight="bold")
-        tx(fig, x + TILE, Y_HEAD, f"LCZ {LCZ} on {100 * st['lcz_share']:.0f} % of tile", FS_SMALL,
-           P["orange_dark"], "bold", ha="right")
-        rect(fig, x, Y_TOP, TILE, BAR_H, P["orange_light"], zorder=2)
-        rect(fig, x, Y_TOP, TILE * st["lcz_share"], BAR_H, S.CLASS_COLORS[LCZ], zorder=3)
+        tx(fig, x + TILE, Y_HEAD, f"LCZ {LCZ} on {100 * st['lcz_share']:.0f} % of tile", FS_SMALL, LCZ_DARK, "bold",
+           ha="right")
+        rect(fig, x, Y_TOP, TILE, BAR_H, LCZ_LIGHT, zorder=2)
+        rect(fig, x, Y_TOP, TILE * st["lcz_share"], BAR_H, LCZ_FILL, zorder=3)
 
         # computed facts under the tile
-        for j, (val, lab) in enumerate([(f"{st['med_h']:.0f} m", "median building height"),
-                                        (f"{st['med_svf']:.2f}", "median sky view factor")]):
-            y = Y_TILE - 0.235 - j * 0.255
+        rows = [(f"{st['med_h']:.0f} m", "median building height"), (f"{st['med_svf']:.2f}", "median sky view factor"),
+                (f"{100 * st['share_below_anom']:.0f} %", "of cells over 2 \u00b0C cooler")]
+        for y, (val, lab) in zip(Y_ROWS, rows):
             tx(fig, x, y, val, FS_SMALL, weight="bold")
             tx(fig, x + 0.60, y, lab, FS_SMALL, P["muted"])
 
     # ---- key under the flat tile --------------------------------------------------------------
     any_below = any(t.get("share_below_anom", 0) > 0 for t in tile_st)
     any_above = any(t.get("share_above_anom", 0) > 0 for t in tile_st)
-    cb = draw_colour_key(fig, ML + 0.02, 1.12, FLAT_W - 0.04, any_below, any_above)
-    tx(fig, ML, 0.73, "ΔUTCI vs day median, °C", FS_KEY)
-    tx(fig, ML, 0.52, "breezy day, 15:00", FS_KEY, P["muted"])
-    rect(fig, ML, 0.305, 0.16, 0.13, P["taupe"], zorder=2)
-    tx(fig, ML + 0.23, 0.31, "buildings", FS_KEY, P["muted"])
+    cb = draw_colour_key(fig, ML + 0.02, 1.20, FLAT_W - 0.04, any_below, any_above)
+    tx(fig, ML, 0.835, "ΔUTCI vs day median, °C", FS_KEY)
+    tx(fig, ML, Y_ROWS[0], "breezy day, 15:00", FS_KEY, P["muted"])
+    rect(fig, ML, Y_ROWS[1] - 0.005, 0.16, 0.13, P["taupe"], zorder=2)
+    tx(fig, ML + 0.23, Y_ROWS[1], "buildings", FS_KEY, P["muted"])
+    fig.add_artist(mpatches.Rectangle((ML, Y_ROWS[2] - 0.005), 0.16, 0.13, transform=fig.dpi_scale_trans,
+                                      facecolor="white", edgecolor=P["taupe"], linewidth=0.8, zorder=2))
+    tx(fig, ML + 0.23, Y_ROWS[2], "not pedestrian space", FS_KEY, P["muted"])
 
     # ---- right: three computed numbers -------------------------------------------------------
-    tx(fig, X_R, Y_HEAD, f"{d['n_segments']:,} segments, breezy day", FS_SMALL, P["muted"])
-    y1, y2, y3 = 3.40, 2.38, 0.85
-    tx(fig, X_R, y1, f"{d['r2_lcz']:.2f}", FS_NUM, P["orange_dark"], "bold")
+    tx(fig, X_R, Y_HEAD, f"All {d['n_segments']:,} segments", FS_SMALL, weight="bold")
+    tx(fig, X_R, Y_HEAD - 0.215, "every LCZ class, breezy day", FS_SMALL, P["muted"])
+    y1, y2, y3 = 3.22, 2.25, Y_ROWS[2] + 0.54
+    tx(fig, X_R, y1, f"{d['r2_lcz']:.2f}", FS_NUM, R2_LCZ_COLOR, "bold")
     tx(fig, X_R, y1 - 0.30, "CV R\u00b2, LCZ label alone", FS_LABEL)
     tx(fig, X_R, y2, f"{d['r2_morph']:.2f}", FS_NUM, weight="bold")
     tx(fig, X_R, y2 - 0.30, "CV R\u00b2, street morphology", FS_LABEL)
-    rect(fig, X_R, 1.60, FW - ML - X_R, 0.012, P["taupe"], zorder=2)
+    rect(fig, X_R, 1.52, FW - ML - X_R, 0.012, P["taupe"], zorder=2)
     x2 = X_R + 1.24
     tx(fig, X_R, y3, f"{med_d:.1f}", FS_NUM_DAY, F4.DAY_TAG_COLOR[DAY], "bold")
     tx(fig, x2, y3, f"{med_c:.1f} \u00b0C", FS_NUM_DAY, F4.DAY_TAG_COLOR[CALM], "bold")
     tx(fig, X_R, y3 - 0.27, "breezy day", FS_LABEL, F4.DAY_TAG_COLOR[DAY])
     tx(fig, x2, y3 - 0.27, "calm day", FS_LABEL, F4.DAY_TAG_COLOR[CALM])
-    tx(fig, X_R, y3 - 0.54, "median street UTCI", FS_LABEL)
+    tx(fig, X_R, y3 - 0.54, "median UTCI, all segments", FS_LABEL)
 
-    meta = dict(fig_size_in=[FW, FH], tile_in=TILE, anom_limit=F4.ANOM_LIM, tiles=tile_st,
+    meta = dict(fig_size_in=[FW, FH], tile_in=TILE, anom_limit=F4.ANOM_LIM, lcz=LCZ, tiles=tile_st,
                 n_segments=d["n_segments"], median_utci={DAY: med_d, CALM: med_c},
                 cv_r2={k: {"lcz_only": days[k]["r2_lcz"], "lcz_only_ci95": days[k]["r2_lcz_ci"],
                            "morphology": days[k]["r2_morph"], "morphology_ci95": days[k]["r2_morph_ci"]}
