@@ -618,8 +618,8 @@ def v2_fs(pt: float) -> float:
 
 
 PLAIN_RULES = [
-    (r"\bIMBAT\b", "Breezy"), (r"\bCALM\b", "Calm"),
-    (r"VRB \(Calm\)", "variable"), (r"\bVRB\b", "var."),
+    (r"\bIMBAT\b", "Breezy"), (r"\bCALM\b", "Low-wind"),
+    (r"VRB \(Low-wind\)", "variable"), (r"\bVRB\b", "var."),
     (r"\s*\(A\d+(-\d+)?\)", ""),
     (r"\u0394M1", "\u0394UTCI"), (r"\bM1\b", "UTCI"), (r"\bM3\b", "T\u2098\u1d63\u209c"),
     (r"M2\u2083\u2088", "hours \u2265 38\u00b0C"),

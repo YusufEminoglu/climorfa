@@ -807,7 +807,7 @@ def main(argv=None):
     print(json.dumps({k: qa[k] for k in ("png", "fig_size_in", "smallest_author_pt", "smallest_printed_pt_190mm",
                                          "text_text_overlaps", "text_text_touching", "clipped_outside_sheet",
                                          "spill_out_of_container")}, indent=1, ensure_ascii=False))
-    print("H3 compact paradox (rule, per day):", meta["verdict_rule"], "->", meta["verdict_text"])
+    print("H3 compact paradox (rule, per day):", meta["verdict_rule"])
     if a.all:
         from scripts.street.figures import build_fig8_h5_targeting as f8
         f8.main(["--allow-partial"] if a.allow_partial else [])

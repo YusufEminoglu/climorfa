@@ -294,7 +294,7 @@ card(x, pd_, CW, DD_H, "orange")
 T(x + 0.12, pd_ + 0.25, "Two design days", FS_HEAD - 0.3, "bold", FAM["orange"]["dark"], box=cbox(x, pd_, CW, DD_H))
 icon_sun(x + CW - 0.32, pd_ + 0.25)
 chip(x + 0.10, pd_ + 0.52, CW - 0.20, 0.42, "orange", "Breezy day, 2022-07-05")
-chip(x + 0.10, pd_ + 1.00, CW - 0.20, 0.42, "orange", "Calm day, 2023-07-26")
+chip(x + 0.10, pd_ + 1.00, CW - 0.20, 0.42, "orange", "Low-wind day, 2023-07-26")
 dd_bottom = DD_BOTTOM
 
 # hub: common grid (spans columns 1-3)
