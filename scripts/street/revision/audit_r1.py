@@ -54,6 +54,13 @@ def measure(df: pd.DataFrame, pred_col: str) -> dict:
         per_class[f"LCZ {c}"] = dict(n=int(m.sum()), audited_built=int((built & m).sum()), exact=int((exact & m).sum()),
                                      audited_compact=int(((aud.map(family) == "compact") & m).sum()))
     out["per_weak_class"] = per_class
+    from sklearn.metrics import cohen_kappa_score
+    out["kappa"] = {
+        "exact_classes": round(float(cohen_kappa_score(weak, aud)), 3),
+        "compactness_family": round(float(cohen_kappa_score(weak.map(family), aud.map(family))), 3),
+        "built_vs_natural": None,   # the weak label is built for every unit, so kappa is undefined
+        "note": "Mappings defined after the results were seen (post hoc).",
+    }
     return out
 
 

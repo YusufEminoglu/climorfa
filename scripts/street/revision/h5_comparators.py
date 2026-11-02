@@ -30,6 +30,22 @@ Comparators (same N, same effects, same outcome):
   R_city       length-weighted random segments city-wide (draw_zone on the full pool), 20 draws seeded 20261030 + k.
   S_LST        segments ranked by Landsat LST (lst_med, median of 30 m LST over the segment's PS cells), highest first.
 
+Added rules (coordinator request, R1):
+  S_w          segments ranked by w x baseline M2_38 (IMBAT), filled to N: street counterpart of Z_cell_total.
+  S_w_proxy    segments ranked by w x proxy01 (S_proxy score min-max rescaled to 0-1): planner inputs + residents only.
+  S_CALMsel, S_w_CALMsel  S and S_w re-selected on the CALM baseline M2_38 (filled to the frozen N) and scored on both
+               days; the IMBAT row is the out-of-sample check. IMBAT-selected rules scored on CALM are the other direction.
+Allocation check (S, Z, Z_cell_mean, Z_cell_total, S_w, S_w_proxy and the whole pool for reference): share of planted km
+and of weighted hours removed in 250 m cells above the median pop_res density, and in mahalle (2024 population controls)
+above the median density, elderly_65_plus_share and child_0_14_share. No deprivation field exists in data/.
+  W_cell, W_street   cells / streets ranked by the residents weight w only (no hours).
+  Cell_shuffled      Z_cell_total ranking with baseline M2_38 permuted among the segments of each cell (20 shuffles).
+  S_w_shuffled       S_w ranking with the same within-cell permutation (street-level heat information removed).
+Block bootstrap: registered 2 km blocks, 1,000 resamples, seed 20261030 (scripts/street/stats/common.py), planting sets
+fixed; 95 % percentile intervals of the weighted outcome and of the ratios to Z (median draw per resample) and to S.
+Bounding note: S/Z with S divided by the measured additive overstatement of S segments (validation tiles) and Z divided
+by 1.0-1.3.
+
 Person-hour equivalent (resident-hours): sum dM2_38 x prorate x pop_res(cell) x length_seg / L_cell, with L_cell the total
 length of all segments of that 250 m cell; i.e. each resident of a cell is assumed present on the cell's own street
 network during the 10-18 h window, spread uniformly per metre of street. It drops the 400 m reach factor of w.
@@ -61,6 +77,8 @@ PROJECT_ROOT = Path("C:/Users/YE/PyCharmMiscProject/izmir_lcz_deep_morphology_me
 FROZEN = PROJECT_ROOT / "outputs/street/analysis/h5"
 OUT_DIR = PROJECT_ROOT / "outputs/street/analysis/revision_r1"
 GRID = PROJECT_ROOT / "data/street/analysis/grid_250.gpkg"
+METRICS_CALM = PROJECT_ROOT / "data/street/analysis/seg_metrics_CALM.parquet"
+MAHALLE = PROJECT_ROOT / "data/01_raw/population/mahalle_population_controls_2024.gpkg"
 METRIC = "m2_vstrong"          # baseline M2_38 on IMBAT (selection day)
 SPACING = 8.0
 MIN_LCZ_SEG = 30
@@ -247,6 +265,151 @@ def build_scenarios(valid: pd.DataFrame, weights: dict, budget_n: int, rank_metr
 
 
 # ---------------------------------------------------------------------------------------------------------------------
+def build_people_rules(valid: pd.DataFrame, weights: dict, budget_n: int, m2: pd.Series, m1: pd.Series,
+                       sel_day: str) -> tuple[dict, dict]:
+    """Street rules that use the residents weight w (added at the coordinator's request, R1).
+
+    S_w        segments ranked by w x baseline M2_38 of `sel_day`; ties M2_38 desc, M1 desc, seg_id asc; filled to N.
+    S_w_proxy  segments ranked by w x proxy01, proxy01 = min-max rescaled S_proxy score (selection-day free).
+    S (re-selected on `sel_day`) ranked by baseline M2_38 of `sel_day` (frozen tie rule), filled to N."""
+    v = valid.copy()
+    v["_m2"] = v["seg_id"].map(m2)
+    v["_m1"] = v["seg_id"].map(m1)
+    v["_w"] = v["g250_id"].map(weights).fillna(0.0)
+    sc, info = {}, {}
+    s = fill_ordered(v.sort_values(["_m2", "_m1", "seg_id"], ascending=[False, False, True], na_position="last",
+                                   kind="mergesort"), budget_n)
+    v["_sw"] = v["_w"] * v["_m2"]
+    sw = fill_ordered(v.sort_values(["_sw", "_m2", "_m1", "seg_id"], ascending=[False, False, False, True],
+                                    na_position="last", kind="mergesort"), budget_n)
+    tag = "" if sel_day == "IMBAT" else f"_{sel_day}sel"
+    sc[f"S{tag}"] = [s]
+    sc[f"S_w{tag}"] = [sw]
+    info[f"S_w{tag}"] = {"ranking": f"w x baseline M2_38 ({sel_day}) desc; ties M2_38 desc, M1 desc, seg_id asc",
+                         "share_segments_zero_weight": float((sw["_w"] == 0).mean())}
+    info[f"S{tag}"] = {"ranking": f"baseline M2_38 ({sel_day}) desc; ties M1 ({sel_day}) desc, seg_id asc; filled "
+                                  f"to the frozen N (not to the hottest 10 % of length)"}
+    if sel_day == "IMBAT":
+        score = v["svf_med"].rank(pct=True) + (1.0 - v["tcover15"]).rank(pct=True)
+        v["_p01"] = (score - score.min()) / (score.max() - score.min())
+        v["_swp"] = v["_w"] * v["_p01"]
+        sc["S_w_proxy"] = [fill_ordered(v.sort_values(["_swp", "_p01", "seg_id"], ascending=[False, False, True],
+                                                      kind="mergesort"), budget_n)]
+        info["S_w_proxy"] = {"ranking": "w x proxy01 desc, proxy01 = min-max rescaled (rank_pct(svf_med) + "
+                                        "rank_pct(1 - tcover15)); ties proxy01 desc, seg_id asc; no model output"}
+        del sc["S"]                                     # IMBAT-selected S is the frozen S (checked in main)
+        info["S_refill_check"] = s["seg_id"].tolist()
+    return sc, info
+
+
+def shuffle_within_cells(v: pd.DataFrame, col: str, rng: np.random.Generator) -> pd.Series:
+    """Permute `col` among the segments of each 250 m cell (segments without a cell keep their value)."""
+    out = v[col].copy()
+    has = v["g250_id"].notna()
+    key = rng.random(int(has.sum()))
+    sub = v.loc[has, ["g250_id", col]].assign(_k=key)
+    by_cell = sub.sort_values(["g250_id"], kind="mergesort")
+    perm = sub.sort_values(["g250_id", "_k"], kind="mergesort")
+    out.loc[by_cell.index] = perm[col].to_numpy()
+    return out
+
+
+def build_w_rules(valid: pd.DataFrame, weights: dict, budget_n: int, m2: pd.Series) -> tuple[dict, dict]:
+    """Residents-only and shuffled-heat rules (coordinator request 4, R1).
+
+    W_cell        cells ranked by w only (ties g250_id asc), all pool segments of the top cells, seg_id asc inside a cell.
+    W_street      segments ranked by w only (ties seg_id asc). Since w is constant inside a cell, this equals W_cell up to
+                  the order of cells sharing the same w.
+    Cell_shuffled Z_cell_total ranking (w x sum M2_38) with the IMBAT baseline M2_38 permuted among the segments of each
+                  cell (20 shuffles, default_rng(SEED + k)); inside a cell the shuffled M2_38 sets the order. The cell sum
+                  is invariant under the shuffle, so only the order inside the last, partial cell can change.
+    S_w_shuffled  street ranking by w x shuffled M2_38 (same 20 shuffles): keeps people and cell-level heat, removes the
+                  street-level heat information (the informative null for S_w)."""
+    v = valid.copy()
+    v["_m2"] = v["seg_id"].map(m2)
+    v["_w"] = v["g250_id"].map(weights).fillna(0.0)
+    sc, info = {}, {}
+    sc["W_cell"] = [fill_ordered(v.sort_values(["_w", "g250_id", "seg_id"], ascending=[False, True, True],
+                                               na_position="last", kind="mergesort"), budget_n)]
+    sc["W_street"] = [fill_ordered(v.sort_values(["_w", "seg_id"], ascending=[False, True], kind="mergesort"),
+                                   budget_n)]
+    info["W_cell"] = {"ranking": "cell w desc, ties g250_id asc; seg_id asc inside a cell; no hours"}
+    info["W_street"] = {"ranking": "segment w desc, ties seg_id asc; no hours"}
+    cs, sws = [], []
+    for k in range(N_DRAWS):
+        rng = np.random.default_rng(SEED + k)
+        x = v.copy()
+        x["_m2s"] = shuffle_within_cells(x, "_m2", rng)
+        cell = x.groupby("g250_id").agg(w=("_w", "first"), s=("_m2s", "sum"), m=("_m2s", "mean")).reset_index()
+        cell["tot"] = cell["w"] * cell["s"]
+        cell = cell.sort_values(["tot", "m", "g250_id"], ascending=[False, False, True]).reset_index(drop=True)
+        cell["cell_rank"] = np.arange(len(cell))
+        o = x.merge(cell[["g250_id", "cell_rank"]], on="g250_id")
+        cs.append(fill_ordered(o.sort_values(["cell_rank", "_m2s", "seg_id"], ascending=[True, False, True],
+                                             kind="mergesort"), budget_n))
+        x["_sws"] = x["_w"] * x["_m2s"]
+        sws.append(fill_ordered(x.sort_values(["_sws", "_m2s", "seg_id"], ascending=[False, False, True],
+                                              kind="mergesort"), budget_n))
+    sc["Cell_shuffled"], sc["S_w_shuffled"] = cs, sws
+    info["Cell_shuffled"] = {"shuffles": N_DRAWS, "seed_rule": "SEED + k", "note": build_w_rules.__doc__.split(
+        "Cell_shuffled")[1].split("S_w_shuffled")[0].strip()}
+    info["S_w_shuffled"] = {"shuffles": N_DRAWS, "seed_rule": "SEED + k",
+                            "ranking": "w x M2_38 shuffled within cells; ties shuffled M2_38 desc, seg_id asc"}
+    return sc, info
+
+
+def block_bootstrap(allsc: dict, eff: pd.DataFrame, weights: dict, seg_block: pd.Series, counts: np.ndarray) -> dict:
+    """Block bootstrap with the planting sets fixed: each resample re-weights every segment by its 2 km block's
+    multiplicity; outcome = sum dM2_38 x w x prorate x multiplicity. Draw-based rules take the median over draws inside
+    each resample. Returns per rule the bootstrap arrays (n_boot,)."""
+    dm = eff.set_index("seg_id")["dm2_38"].fillna(0.0)
+    nb = counts.shape[1]
+    out = {}
+    for name, tabs in allsc.items():
+        per = []
+        for t in tabs:
+            c = dm.reindex(t["seg_id"]).fillna(0.0).to_numpy() * t["g250_id"].map(weights).fillna(0.0).to_numpy() \
+                * t["prorate_frac"].to_numpy(float)
+            b = t["seg_id"].map(seg_block).to_numpy()
+            if np.isnan(b.astype(float)).any():
+                raise RuntimeError(f"{name}: segments without block id")
+            per.append(counts @ np.bincount(b.astype(int), weights=c, minlength=nb))
+        out[name] = np.median(np.vstack(per), axis=0)
+    return out
+
+
+def load_mahalle(seg_ids: pd.Series) -> pd.DataFrame:
+    """seg_id -> mahalle (by segment midpoint) with residential density and age shares (2024 population controls)."""
+    import geopandas as gpd
+    m = gpd.read_file(MAHALLE).to_crs("EPSG:5253")
+    m["mah_area_ha"] = m.geometry.area / 1e4
+    m["mah_density"] = m["pop_total"] / m["mah_area_ha"]
+    m["mah_id"] = np.arange(len(m))
+    s = gpd.read_file(DEFAULT_SEGMENTS, layer="segments", columns=["seg_id"])
+    s = s[s["seg_id"].isin(set(seg_ids))]
+    pts = gpd.GeoDataFrame({"seg_id": s["seg_id"].to_numpy()},
+                           geometry=s.geometry.interpolate(0.5, normalized=True).to_numpy(), crs=s.crs)
+    j = gpd.sjoin(pts, m[["mah_id", "pop_total", "mah_density", "elderly_65_plus_share", "child_0_14_share",
+                          "geometry"]], how="left", predicate="within")
+    return j.drop_duplicates("seg_id").drop(columns=["geometry", "index_right"]).set_index("seg_id")
+
+
+def allocation(tabs: list[pd.DataFrame], eff: pd.DataFrame, weights: dict, flags: dict) -> dict:
+    """Share of planted km and of weighted hours removed falling in segments with each boolean flag (median over draws)."""
+    dm = eff.set_index("seg_id")["dm2_38"].fillna(0.0)
+    out = {k: {"share_km": [], "share_weighted_hours": []} for k in flags}
+    for t in tabs:
+        p = t["prorate_frac"].to_numpy(float)
+        km = t["length_m"].to_numpy(float) * p
+        wh = dm.reindex(t["seg_id"]).fillna(0.0).to_numpy() * t["g250_id"].map(weights).fillna(0.0).to_numpy() * p
+        for k, f in flags.items():
+            m = t["seg_id"].map(f).fillna(False).to_numpy(bool)
+            out[k]["share_km"].append(km[m].sum() / km.sum())
+            out[k]["share_weighted_hours"].append(wh[m].sum() / wh.sum() if wh.sum() > 0 else np.nan)
+    return {k: {kk: float(np.median(vv)) for kk, vv in x.items()} for k, x in out.items()}
+
+
+# ---------------------------------------------------------------------------------------------------------------------
 def main():
     seg, valid, l_cell = load_pool()
     weights, pop_used = load_grid_weights(GRID)
@@ -296,24 +459,74 @@ def main():
     sens_calm = build_scenarios(valid, weights, budget_n, effP["CALM"].set_index("seg_id")["m2_38_base"], tag="CALM")
     s_ids, s_km = set(s_fz["seg_id"]), float(s_fz["length_m"].sum() / 1000)
     z_list = [x for _, x in z_fz.groupby("draw_id")]
-    allsc = {"S": [s_fz], "Z": z_list, **built["scenarios"]}
+
+    # ---- people-informed street rules and out-of-sample (selection-day) check ----------------------------------------
+    mi = pd.read_parquet(DEFAULT_METRICS).set_index("seg_id")
+    mc = pd.read_parquet(METRICS_CALM).set_index("seg_id")
+    for d, mm in (("IMBAT", mi), ("CALM", mc)):
+        diff = float((mm["m2_vstrong"] - effP[d].set_index("seg_id")["m2_38_base"].reindex(mm.index)).abs().max())
+        if diff != 0:
+            raise RuntimeError(f"{d}: seg_metrics m2_vstrong differs from P baseline m2_38_base ({diff})")
+    pr_i, info_i = build_people_rules(valid, weights, budget_n, mi["m2_vstrong"], mi[M1_COL], "IMBAT")
+    pr_c, info_c = build_people_rules(valid, weights, budget_n, mc["m2_vstrong"], mc[M1_COL], "CALM")
+    refill_same = info_i.pop("S_refill_check") == s_fz["seg_id"].tolist()
+    repro["S_refilled_to_N_with_generic_fill_identical"] = refill_same
+    if not refill_same:
+        raise SystemExit("REPRODUCTION FAILED: generic fill of the IMBAT ranking does not give the frozen S")
+    _, n_calm, _, _ = select_hottest_share(rank_for_budget(valid.assign(m2_vstrong=valid["seg_id"].map(
+        mc["m2_vstrong"]), utci_b15=valid["seg_id"].map(mc[M1_COL])), METRIC), 0.10, SPACING)
+    info_c["note_budget"] = (f"filled to the frozen N = {budget_n}; the hottest-10 % rule on CALM alone would give "
+                             f"N = {n_calm}")
+    built["info"].update(info_i)
+    built["info"].update(info_c)
+    wr, info_w = build_w_rules(valid, weights, budget_n, mi["m2_vstrong"])
+    built["info"].update(info_w)
+    allsc = {"S": [s_fz], "Z": z_list, **built["scenarios"], **pr_i, **wr, **pr_c}
+
+    # ---- registered 2 km blocks (scripts/street/stats/common.py: floor(midpoint / 2000 m), all 74,178 segments) -----
+    from scripts.street.stats.common import BLOCK_M, N_BOOT, boot_block_counts, load_segments
+    from scripts.street.stats.common import SEED as BOOT_SEED
+    segm = load_segments(DEFAULT_SEGMENTS)
+    blk = (np.floor(segm["x_mid"] / BLOCK_M).astype(int).astype(str) + "_"
+           + np.floor(segm["y_mid"] / BLOCK_M).astype(int).astype(str)).to_numpy()
+    ub, inv, counts = boot_block_counts(blk, N_BOOT, BOOT_SEED)
+    seg_block = pd.Series(inv, index=segm["seg_id"].to_numpy())
+    sel_day = {k: ("CALM" if k.endswith("_CALMsel") else "IMBAT") for k in allsc}
 
     days_out, table, draws_rows = {}, [], []
     for d in DAYS:
         sco = Scorer(effP[d], weights, pop, l_cell, s_ids, s_km)
         days_out[d] = {}
+        bt = block_bootstrap(allsc, effP[d], weights, seg_block, counts)
         for name, tabs in allsc.items():
             rows = [sco(t) for t in tabs]
             res = summarise(rows, s_out_d[d], zmed[d], None)
+            b = bt[name]
+            res["block_bootstrap"] = {
+                "weighted_hours_removed_ci95": list(np.percentile(b, [2.5, 97.5])),
+                "ratio_to_Z_ci95": list(np.percentile(b / bt["Z"], [2.5, 97.5])),
+                "ratio_to_S_ci95": list(np.percentile(b / bt["S"], [2.5, 97.5])),
+                "S_over_scenario_ci95": list(np.percentile(bt["S"] / b, [2.5, 97.5])),
+                "ratio_to_Z_median": float(np.median(b / bt["Z"]))}
+            bb = res["block_bootstrap"]
             days_out[d][name] = res
             for k, r in enumerate(rows):
                 draws_rows.append({"day": d, "scenario": name, "draw_id": k, **r})
             ci = res.get("weighted_hours_removed_dist", {}).get("ci_95", [np.nan, np.nan])
-            table.append({"day": d, "scenario": name, "n_draws": res["n_draws"],
+            res["selection_day"] = sel_day[name]
+            res["out_of_sample"] = sel_day[name] != d
+            table.append({"day": d, "scenario": name, "selection_day": sel_day[name],
+                          "out_of_sample": sel_day[name] != d, "n_draws": res["n_draws"],
                           "weighted_hours_removed": res["weighted_hours_removed"],
                           "weighted_ci95_lo": ci[0], "weighted_ci95_hi": ci[1],
                           "ratio_to_frozen_Z_median": res["ratio_to_frozen_Z_median"],
                           "ratio_to_S": res["ratio_to_S"], "S_over_scenario": res["S_over_scenario"],
+                          "boot_weighted_lo": bb["weighted_hours_removed_ci95"][0],
+                          "boot_weighted_hi": bb["weighted_hours_removed_ci95"][1],
+                          "boot_ratio_to_Z_lo": bb["ratio_to_Z_ci95"][0], "boot_ratio_to_Z_hi": bb["ratio_to_Z_ci95"][1],
+                          "boot_ratio_to_S_lo": bb["ratio_to_S_ci95"][0], "boot_ratio_to_S_hi": bb["ratio_to_S_ci95"][1],
+                          "boot_S_over_scenario_lo": bb["S_over_scenario_ci95"][0],
+                          "boot_S_over_scenario_hi": bb["S_over_scenario_ci95"][1],
                           "n_segments": res["n_segments"], "km_planted": res["km_planted"], "n_trees": res["n_trees"],
                           "unweighted_sum_dm2_38": res["unweighted_sum_dm2_38"],
                           "resident_hours_removed": res["resident_hours_removed"],
@@ -324,6 +537,61 @@ def main():
         u_z = np.array([r["unweighted_sum_dm2_38"] for r in draws_rows if r["day"] == d and r["scenario"] == "Z"])
         days_out[d]["unweighted_reference"] = {"S_unweighted": u_s, "Z_unweighted_median": float(np.median(u_z)),
                                                "S_over_Z_unweighted_median_of_draws": float(np.median(u_s / u_z))}
+
+    # ---- bounding note: additive overstatement of S (validation, S segments only) and assumed factors for Z ---------
+    frozen_rep = json.loads((FROZEN / "h5_evaluation_report.json").read_text(encoding="utf-8"))
+    bounding = {"definition": "S/Z with S divided by f_S = additive / exact_S_segments_only on the 40 validation tiles "
+                              "(frozen validation, dM2_38) and Z divided by f_Z; ratio_adj = ratio x f_Z / f_S, applied "
+                              "to every per-draw ratio (median and 2.5-97.5 % of the 20 draws) and to the block-bootstrap "
+                              "interval of S/Z", "days": {}}
+    for d in DAYS:
+        v = frozen_rep["validation"]["days"][d]["dm2_38"]
+        f_s = v["additive"] / v["exact_S_segments_only"]
+        r = np.array([s_out_d[d] / z for z in zdraws_d[d]])
+        bci = days_out[d]["Z"]["block_bootstrap"]["S_over_scenario_ci95"]
+        bounding["days"][d] = {"f_S_measured": f_s, "f_S_rounded": round(f_s, 3), "rows": [
+            {"f_Z": fz, "S_over_Z_median": float(np.median(r)) * fz / f_s,
+             "draw_ci95": [float(np.percentile(r, 2.5)) * fz / f_s, float(np.percentile(r, 97.5)) * fz / f_s],
+             "block_bootstrap_ci95": [bci[0] * fz / f_s, bci[1] * fz / f_s]} for fz in (1.0, 1.1, 1.2, 1.3)]}
+
+    # ---- allocation check ---------------------------------------------------------------------------------------------
+    pool_cells = valid["g250_id"].dropna().unique()
+    cell_dens = g.set_index("g250_id")["pop_res"].fillna(0.0) / 6.25          # residents per ha (all cells 6.25 ha)
+    cell_thr = float(cell_dens.reindex(pool_cells).median())
+    mah = load_mahalle(valid["seg_id"])
+    mpool = mah.dropna(subset=["mah_id"]).drop_duplicates("mah_id")
+    mpool_pop = mpool[mpool["pop_total"].notna()]
+    thr = {"mah_density": float(mpool_pop["mah_density"].median()),
+           "elderly_65_plus_share": float(mpool_pop["elderly_65_plus_share"].median()),
+           "child_0_14_share": float(mpool_pop["child_0_14_share"].median())}
+    seg_cell = valid.set_index("seg_id")["g250_id"]
+    flags = {"cell_pop_res_density_above_median": seg_cell.map(cell_dens).gt(cell_thr),
+             "mahalle_pop_density_above_median": mah["mah_density"].gt(thr["mah_density"]),
+             "mahalle_elderly_65_plus_share_above_median": mah["elderly_65_plus_share"].gt(
+                 thr["elderly_65_plus_share"]),
+             "mahalle_child_0_14_share_above_median": mah["child_0_14_share"].gt(thr["child_0_14_share"])}
+    alloc_sc = ["S", "Z", "Z_cell_mean", "Z_cell_total", "S_w", "S_w_proxy"]
+    pool_tab = [full(valid)]
+    alloc = {"descriptive_only": True,
+             "definitions": {
+                 "cell_pop_res_density_above_median": f"250 m cell pop_res / 6.25 ha > median over the "
+                                                      f"{len(pool_cells)} cells holding pool segments "
+                                                      f"({cell_thr:.2f} residents/ha)",
+                 "mahalle_*": "segment midpoint within the mahalle polygon (2024 population controls, "
+                              "data/01_raw/population/mahalle_population_controls_2024.gpkg); threshold = median over "
+                              f"the {len(mpool_pop)} mahalle with population data that hold pool segments: density "
+                              f"pop_total/ha {thr['mah_density']:.2f}, elderly_65_plus_share "
+                              f"{thr['elderly_65_plus_share']:.4f}, child_0_14_share {thr['child_0_14_share']:.4f}; "
+                              "segments in mahalle without data count as not above",
+                 "deprivation": "no deprivation, income or education field exists in data/ (searched every csv, "
+                                "parquet and gpkg schema); age fields used: elderly_65_plus_share, child_0_14_share"},
+             "share_pool_km_without_mahalle_data": float(
+                 valid.loc[valid["seg_id"].map(mah["pop_total"]).isna(), "length_m"].sum() / valid["length_m"].sum()),
+             "days": {}}
+    for d in DAYS:
+        alloc["days"][d] = {"pool_reference_all_pool_segments": allocation(pool_tab, effP[d], weights, flags)}
+        for k in alloc_sc:
+            alloc["days"][d][k] = allocation(allsc[k], effP[d], weights, flags)
 
     # CALM-ranked zone-rule sensitivity, evaluated on CALM
     sco = Scorer(effP["CALM"], weights, pop, l_cell, s_ids, s_km)
@@ -351,13 +619,42 @@ def main():
         "scenario_info": built["info"], "days": days_out,
         "sensitivity_zone_rules_ranked_on_CALM": {"evaluated_day": "CALM", "scenarios": sens,
                                                   "info": sens_calm["info"]},
+        "out_of_sample_note": ("selection_day = baseline used for the ranking; rows with out_of_sample = true score a "
+                               "selection made on the other day. S and every frozen/comparator rule are selected on "
+                               "IMBAT, so their CALM rows are the IMBAT-selected, CALM-scored check; S_CALMsel and "
+                               "S_w_CALMsel are selected on CALM and their IMBAT rows are the CALM-selected, "
+                               "IMBAT-scored check."),
+        "allocation": alloc,
+        "block_bootstrap": {"blocks": "registered 2 km blocks: floor(segment midpoint / 2000 m) in EPSG:5253 over all "
+                                      f"74,178 segments ({len(ub)} blocks), boot_block_counts from "
+                                      "scripts/street/stats/common.py", "n_boot": N_BOOT, "seed": BOOT_SEED,
+                            "method": "planting sets fixed; each resample multiplies every segment's dM2_38 x w x "
+                                      "prorate by its block multiplicity; draw/shuffle-based rules (Z, Z_pop, R_city, "
+                                      "Cell_shuffled, S_w_shuffled) take the median over their 20 draws inside each "
+                                      "resample; ratios are formed per resample; 95 % = 2.5-97.5 percentiles",
+                            "note": "the point S/Z here is S / median Z draw, which equals the frozen median of "
+                                    "per-draw ratios to 3 decimals"},
+        "bounding_note": bounding,
     }
     (OUT_DIR / "h5_comparators.json").write_text(json.dumps(report, indent=2, default=float), encoding="utf-8")
     t = pd.DataFrame(table)
+    short = {"cell_pop_res_density_above_median": "cell_dens", "mahalle_pop_density_above_median": "mah_dens",
+             "mahalle_elderly_65_plus_share_above_median": "mah_elderly",
+             "mahalle_child_0_14_share_above_median": "mah_child"}
+    for i, r in t.iterrows():
+        a = alloc["days"][r["day"]].get(r["scenario"])
+        if a:
+            for k, s in short.items():
+                t.loc[i, f"alloc_km_{s}_gt_median"] = a[k]["share_km"]
+                t.loc[i, f"alloc_wh_{s}_gt_median"] = a[k]["share_weighted_hours"]
     t.to_csv(OUT_DIR / "h5_comparators_table.csv", index=False, float_format="%.6g")
     pd.DataFrame(draws_rows).to_csv(OUT_DIR / "h5_comparators_draws.csv", index=False, float_format="%.6g")
     with pd.option_context("display.width", 250, "display.max_columns", 30, "display.float_format", "{:.4g}".format):
-        print(t.drop(columns=["weighted_ci95_lo", "weighted_ci95_hi"]).to_string(index=False))
+        print(t[["day", "scenario", "selection_day", "weighted_hours_removed", "boot_weighted_lo", "boot_weighted_hi",
+                 "ratio_to_frozen_Z_median", "boot_ratio_to_Z_lo", "boot_ratio_to_Z_hi", "ratio_to_S",
+                 "boot_ratio_to_S_lo", "boot_ratio_to_S_hi", "S_over_scenario", "n_segments", "km_planted",
+                 "share_segments_zero_weight"]].to_string(index=False))
+        print(json.dumps(bounding, indent=1))
         print("CALM-ranked sensitivity:", {k: round(v["S_over_scenario"], 3) for k, v in sens.items()})
     print(f"written to {OUT_DIR}")
 
