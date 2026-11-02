@@ -3,7 +3,7 @@
 Runs an original figure script unchanged, but intercepts its savefig: every text artist is enlarged by a factor, the
 saved file goes to paper/figures/v2/zone/ instead of the tracked paper/figures/main/ copy. Data, layout and colours stay
 as the original script draws them.
-Usage: python -m scripts.street.revision.v1_figure_text <script_module> <factor> [stem_filter]
+Usage: python -m scripts.street.posthoc.v1_figure_text <script_module> <factor> [stem_filter]
 """
 import runpy
 import sys

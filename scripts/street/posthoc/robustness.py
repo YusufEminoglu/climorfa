@@ -1,11 +1,11 @@
-"""Revision R1: post-hoc, descriptive robustness quantities for H1, H3 and H4 (not part of the registered analyses).
+"""Post-hoc, descriptive robustness quantities for H1, H3 and H4 (not part of the registered analyses).
 
 Read-only on the frozen inputs and results. Reuses the registered helpers in scripts/street/stats (folds, block bootstrap,
 LightGBM settings, UTCI call, Shapley terms, LMM) without modifying them.
 
 Run from the project root:
-    python -m scripts.street.revision.robustness_r1
-Outputs: outputs/street/analysis/revision_r1/robustness_r1.json and short CSVs.
+    python -m scripts.street.posthoc.robustness
+Outputs: outputs/street/analysis/posthoc/robustness.json and short CSVs.
 
 Sections
   0  reproduction check (LCZ-only and morphology CV R2, Var(S)/Var(B))
@@ -45,7 +45,7 @@ import h1_scale as h1  # noqa: E402
 import h4_shade_breeze as h4  # noqa: E402
 
 FINAL = ROOT / "data/street/analysis/final_20261030"
-OUT = ROOT / "outputs/street/analysis/revision_r1"
+OUT = ROOT / "outputs/street/analysis/posthoc"
 H1_JSON = ROOT / "outputs/street/analysis/h1/results/h1_results.json"
 H4_JSON = ROOT / "outputs/street/analysis/h4/results/h4_results.json"
 H3_DIR = ROOT / "outputs/street/analysis/h3"
@@ -1047,7 +1047,7 @@ def main():
     h1j = json.loads(H1_JSON.read_text(encoding="utf-8"))
     h4ref = {d: h4j["results"][d]["reference"] for d in cm.DAYS}
 
-    res = dict(description="Revision R1 post-hoc descriptive robustness quantities (not registered analyses)",
+    res = dict(description="Post-hoc descriptive robustness quantities (not registered analyses)",
                constants=cm.constants_dict(), inputs=dict(final_dir=str(FINAL.relative_to(ROOT)),
                                                           h4_reference_from=str(H4_JSON.relative_to(ROOT))))
     rep = reproduce(frames, h4ref)
@@ -1064,7 +1064,7 @@ def main():
     res["reproduction"] = rep
     res["reproduction_ok"] = ok
     if not ok:
-        cm.write_json(OUT / "robustness_r1.json", res)
+        cm.write_json(OUT / "robustness.json", res)
         raise SystemExit("reproduction failed; stopping")
 
     asg = grid100_assignment()
@@ -1092,10 +1092,10 @@ def main():
     res["C_H4_extras"] = C
     res["D_batch2"] = batch2(frames)
     batch2_csv(res["D_batch2"])
-    cm.write_json(OUT / "robustness_r1.json", res)          # checkpoint before the long third batch
+    cm.write_json(OUT / "robustness.json", res)          # checkpoint before the long third batch
     res["E_batch3"] = batch3(frames, h4ref)
     res["runtime_s"] = time.time() - t0
-    cm.write_json(OUT / "robustness_r1.json", res)
+    cm.write_json(OUT / "robustness.json", res)
 
     # ---- short CSVs ----
     rows = []

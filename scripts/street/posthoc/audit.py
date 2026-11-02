@@ -1,7 +1,7 @@
-"""Post-hoc agreement measures for the Stage 1 manual audit (revision R1, descriptive, not part of any lock).
+"""Post-hoc agreement measures for the Stage 1 manual audit (descriptive, not part of any lock).
 
 Reads the frozen primary-tier rows (label quality high, weak label in LCZ 3/6/8/9) and reports exact agreement together with
-three coarser readings that reviewers asked for: agreement among units whose audited class lies inside the four-class label
+three coarser readings: agreement among units whose audited class lies inside the four-class label
 space, built versus natural agreement, and agreement on the compactness family (LCZ 1-3 compact, 4-6 open, 7-10 other built).
 """
 import json
@@ -12,7 +12,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
 ROWS = ROOT / "outputs/diagnostics/audited_model_validation_2026-07-31/audited_population_rows.csv"
-OUT = ROOT / "outputs/street/analysis/revision_r1/audit_r1.json"
+OUT = ROOT / "outputs/street/analysis/posthoc/audit.json"
 
 
 def wilson(k: int, n: int, z: float = 1.959964) -> list[float]:

@@ -1,4 +1,4 @@
-"""CLIMORFA Street — post-hoc, descriptive H5 comparators (revision R1, reviewer request). NOT part of the lock.
+"""CLIMORFA Street — post-hoc, descriptive H5 comparators. NOT part of the lock.
 
 Nothing here changes the registered H5 verdict. No new SOLWEIG run: every scenario is scored with the frozen additive
 machinery of evaluate_h5.py (A10 ruling 4):
@@ -30,7 +30,7 @@ Comparators (same N, same effects, same outcome):
   R_city       length-weighted random segments city-wide (draw_zone on the full pool), 20 draws seeded 20261030 + k.
   S_LST        segments ranked by Landsat LST (lst_med, median of 30 m LST over the segment's PS cells), highest first.
 
-Added rules (coordinator request, R1):
+Added rules:
   S_w          segments ranked by w x baseline M2_38 (IMBAT), filled to N: street counterpart of Z_cell_total.
   S_w_proxy    segments ranked by w x proxy01 (S_proxy score min-max rescaled to 0-1): planner inputs + residents only.
   S_CALMsel, S_w_CALMsel  S and S_w re-selected on the CALM baseline M2_38 (filled to the frozen N) and scored on both
@@ -50,9 +50,9 @@ Person-hour equivalent (resident-hours): sum dM2_38 x prorate x pop_res(cell) x 
 length of all segments of that 250 m cell; i.e. each resident of a cell is assumed present on the cell's own street
 network during the 10-18 h window, spread uniformly per metre of street. It drops the 400 m reach factor of w.
 
-Outputs: outputs/street/analysis/revision_r1/h5_comparators.json, h5_comparators_table.csv, h5_comparators_draws.csv
+Outputs: outputs/street/analysis/posthoc/h5_comparators.json, h5_comparators_table.csv, h5_comparators_draws.csv
 
-    python -m scripts.street.revision.h5_comparators
+    python -m scripts.street.posthoc.h5_comparators
 """
 
 from __future__ import annotations
@@ -75,7 +75,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 PROJECT_ROOT = Path("C:/Users/YE/PyCharmMiscProject/izmir_lcz_deep_morphology_mert_yavas").resolve()
 FROZEN = PROJECT_ROOT / "outputs/street/analysis/h5"
-OUT_DIR = PROJECT_ROOT / "outputs/street/analysis/revision_r1"
+OUT_DIR = PROJECT_ROOT / "outputs/street/analysis/posthoc"
 GRID = PROJECT_ROOT / "data/street/analysis/grid_250.gpkg"
 METRICS_CALM = PROJECT_ROOT / "data/street/analysis/seg_metrics_CALM.parquet"
 MAHALLE = PROJECT_ROOT / "data/01_raw/population/mahalle_population_controls_2024.gpkg"
@@ -267,7 +267,7 @@ def build_scenarios(valid: pd.DataFrame, weights: dict, budget_n: int, rank_metr
 # ---------------------------------------------------------------------------------------------------------------------
 def build_people_rules(valid: pd.DataFrame, weights: dict, budget_n: int, m2: pd.Series, m1: pd.Series,
                        sel_day: str) -> tuple[dict, dict]:
-    """Street rules that use the residents weight w (added at the coordinator's request, R1).
+    """Street rules that use the residents weight w (post hoc).
 
     S_w        segments ranked by w x baseline M2_38 of `sel_day`; ties M2_38 desc, M1 desc, seg_id asc; filled to N.
     S_w_proxy  segments ranked by w x proxy01, proxy01 = min-max rescaled S_proxy score (selection-day free).
@@ -315,7 +315,7 @@ def shuffle_within_cells(v: pd.DataFrame, col: str, rng: np.random.Generator) ->
 
 
 def build_w_rules(valid: pd.DataFrame, weights: dict, budget_n: int, m2: pd.Series) -> tuple[dict, dict]:
-    """Residents-only and shuffled-heat rules (coordinator request 4, R1).
+    """Residents-only and shuffled-heat rules (post hoc).
 
     W_cell        cells ranked by w only (ties g250_id asc), all pool segments of the top cells, seg_id asc inside a cell.
     W_street      segments ranked by w only (ties seg_id asc). Since w is constant inside a cell, this equals W_cell up to
@@ -600,7 +600,7 @@ def main():
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     report = {
-        "descriptive_only": True, "post_hoc": True, "reviewer_request": "R1",
+        "descriptive_only": True, "post_hoc": True,
         "note": "Post-hoc comparators; additive outcome from run P; do not change the registered H5 verdict.",
         "outcome_definition": "sum over the scenario's own segments of dM2_38(P) x w x prorate (A10 ruling 4)",
         "unit": UNIT,
