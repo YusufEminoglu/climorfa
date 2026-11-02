@@ -668,8 +668,8 @@ def build(rs: H3Results):
     ar = (extent[3] - extent[1]) / (extent[2] - extent[0])
     MAP_H = MAP_W * ar
     KEY = 0.98
-    TAG_BAND = 1.52
-    GAP_AC = 0.62
+    TAG_BAND = 1.42
+    GAP_AC = 0.50
     C_ROW, C_GAP = 1.05, 0.66
     C_H = 2 * C_ROW + C_GAP
     C_XL = 0.36
@@ -694,17 +694,14 @@ def build(rs: H3Results):
     s31 = float(((cells["lt"] == 3) & (cells["mt"] == 1)).mean())
     s13 = float(((cells["lt"] == 1) & (cells["mt"] == 3)).mean())
     date = dict(DAYS)[MAP_DAY]
-    tag_box(axA, f"{MAP_DAY} · {date} · {n_c:,} cells of 250 m with LST and M1\n"
-                 f"outlined = decoupled: hot surface / cool street {pct(s31)},\n"
-                 f"cool surface / hot street {pct(s13)} of the cells",
-            x=1.92 / MAP_W, y=-0.035, va="top")
-
     # (b) forest
     xb0 = L + MAP_W + 1.55
     fgap = 0.30
     fw = (FW - R - 0.42 - xb0 - fgap) / 2
     yb = y_map + 0.40
-    hb = MAP_H - 0.40 - 0.42
+    yc_ = y_map - TAG_BAND - GAP_AC - C_H
+    yb = yc_ + 0.05
+    hb = y_map + MAP_H - 0.42 - yb
     axB = {"M1": S.inch_axes(fig, xb0, yb, fw, hb), "M3": S.inch_axes(fig, xb0 + fw + fgap, yb, fw, hb)}
     rows = draw_forest(axB, d)
     axB["M3"].legend(handles=F5.day_legend_handles(), loc="lower right", bbox_to_anchor=(1.0, 1.01), ncol=2,
@@ -739,10 +736,7 @@ def build(rs: H3Results):
         lab2 = ["all"] + [cls_label(audit_code(s_)) if audit_code(s_) else s_ for s_ in keep]
         ym2 = draw_shares(axC2, da, g2, lab2)
         n_aud = int(a0.loc[a0["audit_label"] == "ALL_AUDITED", "n_segments"].iloc[0])
-        sub_badge(axC2, f"by manual-audit class · {n_aud:,} segments in audited cells")
-        if len(small):
-            axC2.text(1.0, -0.36, f"{len(small)} audit classes with < {AUDIT_MIN_N} segments not shown",
-                      transform=axC2.transAxes, ha="right", va="top", fontsize=6.6, color=P["muted"])
+        sub_badge(axC2, "by manual-audit class")
         aud_meta.update(shown=keep, classes_not_shown=small["audit_label"].tolist(), n_audited=n_aud)
     else:
         axC2.set_axis_off()
@@ -762,14 +756,6 @@ def build(rs: H3Results):
           mpatches.Patch(facecolor="white", edgecolor="#6A6A6A", hatch="//////", label="CALM")]
     axC1.legend(handles=hc, loc="lower left", bbox_to_anchor=(0.0, 1.0), ncol=4, fontsize=6.8, frameon=False,
                 handlelength=1.4, columnspacing=0.9, borderaxespad=0.15)
-
-    # (e) card
-    xe = L + MAP_W + 0.45
-    e_top = yb - 1.02                                   # below the forest's x labels
-    e_h = e_top - (yc - 0.05)
-    axE = S.inch_axes(fig, xe, yc - 0.05, FW - R - xe, e_h)
-    verdict_txt = draw_card(axE, rs, d, verdict, h_in=e_h)
-    S.panel_label(axE, "E", fontsize=15.0, y=1.02)
 
     # (d) tile strip (Fig 9 compact tiles)
     yd = BOT + D_LEG
@@ -792,16 +778,15 @@ def build(rs: H3Results):
         S.tile_tag(axL, "Hot: top tercile", HOT_TAG, x=0.0, y=0.80)
         S.tile_tag(axL, "Cool: bottom tercile", COOL_TAG, x=0.44, y=0.80)
         fig.text((L + 3.05) / FW, (yd - 0.40 + 0.30 * 0.80) / FH,
-                 "of the 250 m cells · left of each pair: hot surface, cool street; right: cool surface, hot street",
+                 "left of each pair: hot surface, cool street; right: the reverse",
                  ha="left", va="top", fontsize=6.8, color=P["muted"])
     label = rs.status["IMBAT"]
     stamp(fig, rs, label)
-    meta = dict(verdict_rule=verdict, verdict_text=verdict_txt, status=rs.status, n_tiles=rs.n_tiles,
+    meta = dict(verdict_rule=verdict, status=rs.status, n_tiles=rs.n_tiles,
                 cuts=d["cuts"], n_cells=n_c, share_cells_hot_cool=s31, share_cells_cool_hot=s13,
                 forest_rows=[str(r) for r in rows], tiles=tstats, audit=aud_meta, fh_in=FH)
-    panels = {"a": [axA, axK], "b": list(axB.values()), "c": [axC1, axC2], "d": tile_axes + ([axL] if axL else []),
-              "e": [axE]}
-    return fig, meta, panels, [axE], tile_axes
+    panels = {"a": [axA, axK], "b": list(axB.values()), "c": [axC1, axC2], "d": tile_axes + ([axL] if axL else [])}
+    return fig, meta, panels, [], tile_axes
 
 
 def main(argv=None):

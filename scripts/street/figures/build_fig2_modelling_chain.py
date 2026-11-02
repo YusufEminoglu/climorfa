@@ -79,7 +79,7 @@ H_BOTTOM = H_TOP + 2 * HH_ + ROW_GAP
 
 # ----------------------------------------------------------------------------- canvas
 W = S.V2_FIG_WIDTH_IN        # 13.0 in
-FH = round(H_BOTTOM + 0.10, 2)  # figure height, in
+FH = round(ROW_D + ROW_H + 0.10, 2)  # figure height, in
                    # figure height, in (tuned below)
 fig = plt.figure(figsize=(W, FH), constrained_layout=False)
 ax = fig.add_axes([0, 0, 1, 1])
@@ -242,9 +242,9 @@ def stage_header(x, d, letter, name):
     return lt, nt
 
 
-HDR_D = {"A": 0.34, "B": (HUB_BOTTOM + ENG_D) / 2, "C": ROW_D, "D": ROW_D + ROW_H + 0.27}
-STAGES = {"A": "INPUTS AND GEOMETRY", "B": "PHYSICS CHAIN", "C": "AGGREGATION", "D": "HYPOTHESES"}
-hdr_art = {k: stage_header(0.27, HDR_D[k], k, STAGES[k]) for k in "ABCD"}
+HDR_D = {"A": 0.34, "B": (HUB_BOTTOM + ENG_D) / 2, "C": ROW_D}
+STAGES = {"A": "INPUTS AND GEOMETRY", "B": "PHYSICS CHAIN", "C": "AGGREGATION"}
+hdr_art = {k: stage_header(0.27, HDR_D[k], k, STAGES[k]) for k in "ABC"}
 S.scale_text(fig)          # scale what exists so far so headers can be measured
 fig.canvas.draw()
 _rend = fig.canvas.get_renderer()
@@ -259,7 +259,7 @@ def data_bbox_of(art):
 
 # place the name text right after the letter box (letter box patch extent) and measure the header end
 hdr_end = {}
-for k in "ABCD":
+for k in "ABC":
     lt, nt = hdr_art[k]
     pb = lt.get_bbox_patch().get_window_extent(_rend)
     px1 = _inv.transform((pb.x1, pb.y1))[0]
@@ -293,8 +293,8 @@ pd_ = TOP_IN + SRC_H + GAP_H
 card(x, pd_, CW, DD_H, "orange")
 T(x + 0.12, pd_ + 0.25, "Two design days", FS_HEAD - 0.3, "bold", FAM["orange"]["dark"], box=cbox(x, pd_, CW, DD_H))
 icon_sun(x + CW - 0.32, pd_ + 0.25)
-chip(x + 0.10, pd_ + 0.52, CW - 0.20, 0.42, "orange", "IMBAT  breezy, 2022-07-05")
-chip(x + 0.10, pd_ + 1.00, CW - 0.20, 0.42, "orange", "CALM  stagnant, 2023-07-26")
+chip(x + 0.10, pd_ + 0.52, CW - 0.20, 0.42, "orange", "Breezy day, 2022-07-05")
+chip(x + 0.10, pd_ + 1.00, CW - 0.20, 0.42, "orange", "Calm day, 2023-07-26")
 dd_bottom = DD_BOTTOM
 
 # hub: common grid (spans columns 1-3)
@@ -404,18 +404,14 @@ arrow([(CX[0] + CW + 0.02, ROW_MID), (CX[1] - 0.03, ROW_MID)])
 box(CX[2], ROW_D, CW, ROW_H, FAM["pink"]["light"], FAM["pink"]["base"], lw=1.4, z=4)
 mb = cbox(CX[2], ROW_D, CW, ROW_H)
 T(CX[2] + 0.12, ROW_D + 0.22, "metrics, per segment and day", FS_SMALL - 0.3, "normal", MUTED, box=mb)
-metrics = [("M1", "UTCI 14–15 h (street)", True, 0.36),
-           ("M2", None, False, 0.56),
-           ("M3", r"$T_{mrt}$, 14–15 h".replace("\\u2013", "–"), False, 0.36),
-           ("M4", "shade fraction, 10–18 h", False, 0.36),
-           ("M5", "UTCI 14–15 h (uniform)", False, 0.36)]
+metrics = [("M1", "UTCI 15:00, street wind", True, 0.42),
+           ("M2", "Heat-stress hours, 10–18 h", False, 0.42),
+           ("M3", r"$T_{mrt}$ at 15:00", False, 0.42),
+           ("M4", "Shade fraction, 10–18 h", False, 0.42),
+           ("M5", "UTCI 15:00, uniform wind", False, 0.42)]
 cd = ROW_D + 0.42
 for m, txt, prim, hch in metrics:
-    if m == "M2":
-        chip(CX[2] + 0.10, cd, CW - 0.20, hch, "pink", "", lines=("M2  hours UTCI ≥ 32 °C", "      daytime window 10–18 h"),
-             size=FS_SMALL - 0.2)
-    else:
-        chip(CX[2] + 0.10, cd, CW - 0.20, hch, "pink", f"{m}  {txt}", solid=prim, size=FS_SMALL - 0.2)
+    chip(CX[2] + 0.10, cd, CW - 0.20, hch, "pink", txt, solid=prim, size=FS_SMALL - 0.2)
     cd += hch + 0.06
 arrow([(CX[1] + CW + 0.02, ROW_MID), (CX[2] - 0.03, ROW_MID)])
 
@@ -439,67 +435,10 @@ for xx, lab in zip(slots, ["seg.", "50", "100", "250", "500", "LCZ"]):
     T(xx, base_d + 0.27, lab, FS_SMALL - 0.4, "normal", INK, "center", box=lb)
 arrow([(CX[2] + CW + 0.02, ROW_MID), (CX[3] - 0.03, ROW_MID)])
 
-# ============================================================================ (d) hypotheses
-HX0 = X0
-HGAP = 0.40
-HW_ = (W - 0.25 - HX0 - 2 * HGAP) / 3
-HXS = [HX0 + i * (HW_ + HGAP) for i in range(3)]
-BUSX = [None, HXS[0] + HW_ + HGAP / 2, HXS[1] + HW_ + HGAP / 2]       # (no left bus), gap-1 bus, gap-2 bus
-H_ROWS = [H_TOP, H_TOP + HH_ + ROW_GAP]
-
-Hs = [
-    ("H1", "Scale mismatch", ["within-LCZ share of M1 variance > 50 %", "and LCZ-only CV R² < 0.30, both days", "(ICC, η² on the scale ladder)"], False),
-    ("H2", "Mechanisms", ["LightGBM + TreeSHAP family shares", "of M1 (shade, vegetation, orientation,", "ventilation, context); no decision rule"], True),
-    ("H3", "Surface ≠ pedestrian", ["Spearman ρ of LST with M1 and M3;", "compact paradox if ρ < 0 in LCZ 2–3,", "95 % CI excluding 0"], False),
-    ("H4", "Shade vs breeze", ["Shapley split of M1 into shade S", "and breeze B; shade-dominated if", "Var(S) > 4 Var(B), both days"], False),
-    ("H5", "Targeting", ["street- vs zone-targeted trees, budget", "N set by M2 (SOLWEIG rerun);", "supported if street ≥ 1.5 × zone"], False),
-]
-# slot order: (row0,col0)=lock ribbon, (0,1)=H1, (0,2)=H2, (1,0)=H3, (1,1)=H4, (1,2)=H5
-slots_h = [(0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
-feed = {}   # bus index per slot
-for (tag, title, lines, desc), (r, c) in zip(Hs, slots_h):
-    x, d = HXS[c], H_ROWS[r]
-    box(x, d, HW_, HH_, "white", FAM["taupe"]["dark"], lw=1.4, ls=(0, (4, 2.2)) if desc else "-", z=5)
-    hb = cbox(x, d, HW_, HH_)
-    box(x + 0.10, d + 0.10, 0.50, 0.32, FAM["taupe"]["dark"], FAM["taupe"]["dark"], lw=1.0, z=6, pad=0.03)
-    T(x + 0.35, d + 0.26, tag, FS_BODY, "bold", "white", "center", box=hb, tag="tag:" + tag)
-    T(x + 0.75, d + 0.26, title, FS_HEAD - 0.3, "bold", INK, box=hb, tag="title:" + tag)
-    for j, ln in enumerate(lines):
-        T(x + 0.12, d + 0.64 + j * 0.26, ln, FS_SMALL, "normal", INK, box=hb, tag=f"{tag}:{j}")
-    feed[(r, c)] = d + HH_ / 2
-
-# pre-registration ribbon (slot row0,col0)
-rx, rd = HXS[0], H_ROWS[0]
-box(rx, rd, HW_, HH_, FAM["pink"]["light"], FAM["pink"]["dark"], lw=1.4, z=5)
-rb = cbox(rx, rd, HW_, HH_)
-icon_lock(rx + 0.50, rd + HH_ / 2, FAM["pink"]["dark"], k=1.7)
-T(rx + 1.00, rd + HH_ / 2 - 0.20, "Plan locked 30 Oct 2026", FS_BODY + 0.2, "bold", FAM["pink"]["dark"], box=rb, tag="lock1")
-T(rx + 1.00, rd + HH_ / 2 + 0.20, "before any hypothesis result", FS_SMALL, "normal", INK, box=rb, tag="lock2")
-
-# fan-out: metrics + ladder -> rail -> buses -> hypotheses (ribbon has no feed)
-arrow([(CC[2], ROW_D + ROW_H + 0.02), (CC[2], RAIL_D)], head=False)
-arrow([(CC[3], LD_D + LD_H + 0.02), (CC[3], RAIL_D)], head=False)
-arrow([(CC[3], RAIL_D), (BUSX[1], RAIL_D)], head=False)
-dot(CC[2], RAIL_D)
-dot(BUSX[1], RAIL_D)
-dot(BUSX[2], RAIL_D)
-# left bus -> H3 only (row1,col0); gap-1 bus -> H1 (row0,col1) and H4 (row1,col1); gap-2 bus -> H2, H5
-arrow([(BUSX[1], RAIL_D), (BUSX[1], feed[(1, 1)])], head=False)
-# H3 (row1, col0) is fed through the channel between the two grid rows (no feeder along the sheet edge)
-CH_D = H_ROWS[0] + HH_ + ROW_GAP / 2
-h3x = HXS[0] + HW_ / 2
-arrow([(BUSX[1], CH_D), (h3x, CH_D), (h3x, H_ROWS[1] - 0.03)])
-dot(BUSX[1], CH_D)
-arrow([(BUSX[1], feed[(0, 1)]), (HXS[1] - 0.04, feed[(0, 1)])])
-arrow([(BUSX[1], feed[(1, 1)]), (HXS[1] - 0.04, feed[(1, 1)])])
-arrow([(BUSX[2], RAIL_D), (BUSX[2], feed[(1, 2)])], head=False)
-arrow([(BUSX[2], feed[(0, 2)]), (HXS[2] - 0.04, feed[(0, 2)])])
-arrow([(BUSX[2], feed[(1, 2)]), (HXS[2] - 0.04, feed[(1, 2)])])
-
 # ============================================================================ legend (top right, beside stage A)
 LEG_ROWS = [
     [("teal", "terrain and buildings", 4.25), ("green", "trees", 6.65), ("orange", "weather forcing", 8.05), ("blue", "wind", 10.3)],
-    [("pink", "heat exposure and stress", 4.25), ("taupe", "units, metrics and tests", 7.0)],
+    [("pink", "heat exposure and stress", 4.25), ("taupe", "units and metrics", 7.0)],
 ]
 for r, row in enumerate(LEG_ROWS):
     d = 0.14 + r * 0.36
@@ -510,9 +449,6 @@ for r, row in enumerate(LEG_ROWS):
 d = 0.14 + 0.36
 arrow([(9.8, d), (10.1, d)], lw=1.5)
 T(10.18, d, "data flow", FS_SMALL - 0.3, "normal", INK, tag="leg:flow")
-ax.add_patch(mp.FancyBboxPatch((11.25, Y(d) - 0.075), 0.26, 0.15, boxstyle="round,pad=0.02", facecolor="white",
-                               edgecolor=FAM["taupe"]["dark"], linewidth=1.2, linestyle=(0, (3, 1.8)), zorder=6))
-T(11.63, d, "descriptive test", FS_SMALL - 0.3, "normal", INK, tag="leg:desc")
 
 S.finalize_panel_labels(fig)
 nscaled = S.scale_text(fig)        # idempotent: scales the texts created after the header pass
@@ -544,7 +480,7 @@ for i in range(len(bbs)):
         if a[0] < b[2] - 0.01 and b[0] < a[2] - 0.01 and a[1] < b[3] - 0.01 and b[1] < a[3] - 0.01:
             issues.append(f"TEXT OVERLAP: '{bbs[i][0]}' x '{bbs[j][0]}'")
 # stage letter patch vs its name
-for k in "ABCD":
+for k in "ABC":
     lt, nt = hdr_art[k]
     pb = lt.get_bbox_patch().get_window_extent(rend)
     nb = nt.get_window_extent(rend)

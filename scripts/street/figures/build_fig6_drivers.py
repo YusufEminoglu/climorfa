@@ -195,12 +195,6 @@ def draw_features(ax, h2):
     ax.legend(handles=h, loc="lower right", fontsize=6.6, frameon=True, ncol=1, handletextpad=0.35, borderpad=0.5,
               labelspacing=0.35)
     r = {day: h2["results"][day]["model_A_features_only"] for day, _ in DAYS}
-    # computed H2 headline above the feature axis (never over the markers, whatever the real values are)
-    txt = ("street-feature model, CV R²\n" + " · ".join(
-        f"{day} {num(r[day]['cv_r2'])} {F5.ci_txt(r[day]['cv_r2_ci95'])}" for day, _ in DAYS))
-    ax.text(1.0, 1.035, txt, transform=ax.transAxes, ha="right", va="bottom", fontsize=7.0, color=P["ink"],
-            linespacing=1.3, bbox={"facecolor": "white", "edgecolor": P["taupe"], "boxstyle": "round,pad=0.30",
-                                   "alpha": 0.95}, zorder=10, clip_on=False)
     return feats
 
 
@@ -443,9 +437,9 @@ def build(rs: F5.ResultSet):
     bins = {day: polar_bins(segs[day], cm.SEED + 6) for day, _ in DAYS}
 
     FW = S.V2_FIG_WIDTH_IN
-    T, A_H, A_XL, GAP = 0.80, 3.90, 0.80, 0.52
-    C_H, C_XL, D_H, BOT = 3.80, 0.62, 1.95, 0.25
-    FH = T + A_H + A_XL + GAP + C_H + C_XL + GAP + D_H + BOT
+    T, A_H, A_XL, GAP = 0.42, 3.90, 0.80, 0.42
+    C_H, C_XL, BOT = 3.80, 0.62, 0.12
+    FH = T + A_H + A_XL + GAP + C_H + C_XL + BOT
     fig = plt.figure(figsize=(FW, FH))
     ya = FH - T - A_H
     axF = S.inch_axes(fig, 1.95, ya, 1.85, A_H)
@@ -493,11 +487,6 @@ def build(rs: F5.ResultSet):
     cells[("IMBAT", "S")].text(-0.12, -0.1, "H/W class", ha="right", va="bottom", fontsize=6.6,
                                color=P["muted"], clip_on=False)
 
-    yd = BOT
-    axD = S.inch_axes(fig, 0.30, yd, FW - 0.55, D_H)
-    draw_card(axD, h4, ok, per)
-    S.panel_label(axD, "D", fontsize=15.0, y=1.03)
-
     label = h4["results"]["IMBAT"]["label"]
     arts = F5.stamp(fig, rs, label)
     meta = dict(verdict_rule=ok, verdict_json=h4["decision"]["H4"], per_day=per, label=label,
@@ -505,8 +494,8 @@ def build(rs: F5.ResultSet):
                 polar_bins={day: {k: (v.tolist() if hasattr(v, "tolist") else v) for k, v in b.items()}
                             for day, b in bins.items()},
                 sun_az={day: h4["results"][day]["forcing"]["sun_az"] for day, _ in DAYS})
-    panels = {"a": [axF, axS], "b": [axP, axPL], "c": [axV] + list(cells.values()) + [fig._fig6_cax], "d": [axD]}
-    return fig, meta, panels, [axD], arts, draw_ax
+    panels = {"a": [axF, axS], "b": [axP, axPL], "c": [axV] + list(cells.values()) + [fig._fig6_cax]}
+    return fig, meta, panels, [], arts, draw_ax
 
 
 def main(argv=None):

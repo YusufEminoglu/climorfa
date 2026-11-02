@@ -383,7 +383,7 @@ def draw_outcome(ax, d, chk):
     for s__ in ax.spines.values():
         s__.set_color(P["grid"]); s__.set_linewidth(1.0)
     unit = "" if k == 0 else f" (\u00d710$^{{{k}}}$)"
-    ax.set_xlabel(f"Weighted reduction \u0394(M2\u2083\u2088 \u00d7 w){unit}", fontsize=8.6, color=P["ink"], labelpad=3)
+    ax.set_xlabel(f"Weighted hours removed{unit}", fontsize=8.6, color=P["ink"], labelpad=3)
     return dict(scale_exp=k, s=s_ * f, z_median=zm * f, z_range=[lo * f, hi * f], line=thr * f)
 
 
@@ -532,8 +532,8 @@ def build(rs: H5Results):
     extent = tuple(study.total_bounds)
     ar = (extent[3] - extent[1]) / (extent[2] - extent[0])
     MAP_H = MAP_W * ar
-    TAG_BAND = 1.10
-    GAP_MC = 0.72
+    TAG_BAND = 0.62
+    GAP_MC = 0.50
     C_HDR = 0.36
     TILE = 2.85
     TGAP = 0.12
@@ -557,7 +557,7 @@ def build(rs: H5Results):
     axLg.plot([0.01, 0.13], [0.5, 0.5], color=S_COLOR, lw=1.8, solid_capstyle="round")
     axLg.text(0.17, 0.5, "S, street-targeted", ha="left", va="center", fontsize=7.4, fontweight="bold",
               color=P["ink"])
-    cZ = S.inch_axes(fig, L + 0.04, y_map - 1.00, 1.90, 0.11)
+    cZ = S.inch_axes(fig, L + 2.95, y_map - 0.30, 1.90, 0.11)
     sm = mpl.cm.ScalarMappable(cmap=Z_CMAP, norm=norm)
     cb = fig.colorbar(sm, cax=cZ, orientation="horizontal")
     cb.set_ticks(sorted({1, int(round(d["n_draws"] / 2)), d["n_draws"]}))
@@ -565,32 +565,14 @@ def build(rs: H5Results):
     cb.ax.grid(False)
     cZ.text(0.0, 1.5, "Z, draws per segment", transform=cZ.transAxes, ha="left", va="bottom",
             fontsize=7.4, fontweight="bold", color=P["ink"])
-    jz = d["rep"]["jaccard_overlap_priority_sets"]["jaccard_segment_count"]
-    sS = rs.summary.get("scenario_S", {})
-    zc = rs.summary.get("scenario_Z", {}).get("target_lcz")
-    zlab = LCZ_LABEL.get(int(zc), zc) if zc is not None else "?"
-    tag_box(axA, f"{DAY} \u00b7 S: hottest 10 % of segment length by M2\u2083\u2088,\n"
-                 f"{sS.get('n_segments', len(d['s'])):,} segments \u00b7 Z: same budget N in LCZ {zlab},\n"
-                 f"{d['zg'].shape[0]:,} segments in \u2265 1 of {d['n_draws']} draws\n"
-                 f"Jaccard S \u2229 Z: median {num(jz['median'], 3)} {F5.ci_txt(jz['ci_95'], 3)}",
-            x=2.40 / MAP_W, y=-0.035, va="top")
-
     # (b) outcome strip
     xb = L + MAP_W + 1.62
     bw = FW - R - xb
-    hb = 1.85
-    yb = FH - T - 0.42 - hb
+    hb = 4.25
+    yb = FH - T - 0.60 - hb
     axB = S.inch_axes(fig, xb, yb, bw, hb)
     ostats = draw_outcome(axB, d, chk)
     S.panel_label(axB, "B", fontsize=15.0, x=-1.62 / bw, y=1.02)
-
-    # (d) card
-    xd = L + MAP_W + 0.45
-    d_top = yb - 0.85
-    d_bot = y_map - TAG_BAND - 0.28                       # 6 card rows: reaches into the gap above panel (c)
-    axD = S.inch_axes(fig, xd, d_bot, FW - R - xd, d_top - d_bot)
-    draw_card(axD, rs, d, verdict, chk, d_top - d_bot)
-    S.panel_label(axD, "D", fontsize=15.0, y=1.02)
 
     # (c) close-up: three tiles, colour bars stacked to their right
     y_tile = BOT
@@ -604,8 +586,7 @@ def build(rs: H5Results):
         cstats = draw_close(axC, best, cax_abs, cax_d, fig)
         place = tile_place(d["s"], best["tid"])
         fig.text((L + 1.5 * TILE + TGAP) / FW, (y_tile + TILE + 0.07) / FH,
-                 f"{place + ' \u00b7 ' if place else ''}300 m window \u00b7 15:00 \u00b7 planted crowns outlined "
-                 f"(dotted: before planting)", ha="center", va="bottom", fontsize=7.5, fontweight="bold",
+                 f"{place + ' \u00b7 ' if place else ''}300 m window, 15:00", ha="center", va="bottom", fontsize=7.5, fontweight="bold",
                  color=P["ink"])
     else:
         for ax in axC + [cax_abs, cax_d]:
@@ -616,8 +597,8 @@ def build(rs: H5Results):
     F7.stamp(fig, rs, rs.status)
     meta = dict(verdict_rule=verdict, recomputed=chk, status=rs.status, tile=tinfo, close=cstats, outcome=ostats,
                 n_z_segments=int(d["zg"].shape[0]), n_s_segments=int(len(d["s"])), fh_in=FH)
-    panels = {"a": [axA, axLg, cZ], "b": [axB], "c": axC + [cax_abs, cax_d], "d": [axD]}
-    return fig, meta, panels, [axD], axC
+    panels = {"a": [axA, axLg, cZ], "b": [axB], "c": axC + [cax_abs, cax_d]}
+    return fig, meta, panels, [], axC
 
 
 def main(argv=None):

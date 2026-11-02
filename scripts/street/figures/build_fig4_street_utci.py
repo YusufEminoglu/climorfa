@@ -90,7 +90,7 @@ CMAP_ANOM = mpl.colors.LinearSegmentedColormap.from_list(
 PR = S.PRESET_WIDE_13                    # 0.50 + 12.0 + 0.50 = 13.0 in (= S.V2_FIG_WIDTH_IN)
 MAP_GAP = 0.12                           # Fig 9 tile gap
 PAIR_GAP_IN, PAIR_GAP_OUT = 0.10, 0.30   # within a day pair / between places
-TAG_BAND = 0.56                          # computed tag strip under each map
+TAG_BAND = 0.36                          # computed tag strip under each map
 GAP_TAG_TILES = 0.62                     # (c) letter + place headers above the strip
 GAP_TILES_CBAR = 0.50                    # category labels above the bar
 CBAR_W, CBAR_H = 4.80, 0.12              # bar height = Fig 9 (0.015 x 8.05 in)
@@ -269,15 +269,10 @@ def draw_map(ax, day, date, segs_xy, seg_ids, met, study, land, cmap, norm, st, 
                     fontweight="bold", color=S.PANEL_TEXT, zorder=21,
                     path_effects=[pe.withStroke(linewidth=2.2, foreground="white")])
     zero = " (\u0394 = 0)" if variant == "anomaly" else ""
-    line1 = (f"{day} \u00b7 {date} \u00b7 median {st['median']:.1f}\u00b0C{zero}, "
-             f"P10\u2013P90 {st['p10']:.1f}\u2013{st['p90']:.1f}\u00b0C")
-    line2 = (f"\u2265 38\u00b0C: {100 * st['share_ge38']:.1f} % \u00b7 \u2265 46\u00b0C: {100 * st['share_ge46']:.1f} %"
-             f" of segments")
-    if ref_median is not None:
-        line2 += f" \u00b7 median {sgn(st['median'] - ref_median)}\u00b0C vs IMBAT"
+    line1 = f"{day} \u00b7 median {st['median']:.1f}\u00b0C"
     pad_in = 0.30 * S.v2_fs(7.2) / 72.0                                # box pad at the final (scaled) size
     ax_w_in = ax.get_position().width * ax.figure.get_size_inches()[0]
-    tag_box(ax, line1 + "\n" + line2, x=pad_in / ax_w_in, y=-0.03, va="top")   # box edge flush with the map's left       # below the map (no room in the gulf at v2 type)
+    tag_box(ax, line1, x=pad_in / ax_w_in, y=-0.03, va="top")   # box edge flush with the map's left       # below the map (no room in the gulf at v2 type)
 
 
 def draw_tile(ax, tid, day, tiles, cmap, norm, variant, day_median, scalebar=False):

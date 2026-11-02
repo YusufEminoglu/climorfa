@@ -333,12 +333,6 @@ def draw_forcing(axs: dict, fo: dict):
         axs[k].set_xlabel("Hour label (local, hour ending)")
     # computed notes
     a, b = fo["IMBAT"], fo["CALM"]
-    note(axs["ta"], 0.975, 0.05,
-         f"max  IMBAT {a['peak_ta']:.1f}\u00b0C ({fmt_label(a['peak_ta_label'])})\n"
-         f"        CALM {b['peak_ta']:.1f}\u00b0C ({fmt_label(b['peak_ta_label'])})", ha="right", va="bottom")
-    note(axs["ghi"], 0.5, 0.975,
-         f"ERA5 / clear sky, label {NOON_LABEL}\nIMBAT {a['noon_ratio']:.3f} \u00b7 CALM {b['noon_ratio']:.3f}",
-         ha="center", va="top")
 
 
 def forcing_legend(ax):
@@ -431,12 +425,6 @@ def draw_ratio(ax, sd: dict, sn: dict, fo_imbat: dict):
     ax.grid(False, axis="x")
     for sp in ax.spines.values():                                            # v1 Fig 4 / v2 Fig 5: pale full frame
         sp.set_color(P["grid"]); sp.set_linewidth(1.0)
-    ax.text(0.012, 0.975,
-            f"IMBAT \u00b7 label 15 \u00b7 wind {fo_imbat['wd_mean_15_17']:.0f}\u00b0, {fo_imbat['u10']:.1f} m s\u207b\u00b9 "
-            f"\u00b7 n = {len(f):,}",
-            transform=ax.transAxes, ha="left", va="top", fontsize=7.2, fontweight="bold", color=P["ink"],
-            bbox={"facecolor": "white", "edgecolor": P["taupe"], "boxstyle": "round,pad=0.25", "alpha": 0.95},
-            zorder=10)
     ax.text(-0.5, 1.0 + 0.02, "r = 1", ha="left", va="bottom", fontsize=6.6, color=P["muted"],
             style="italic", zorder=6)
 
@@ -507,11 +495,6 @@ def draw_svf(ax, sd: dict, sn: dict):
     ax.grid(False, axis="x")
     for sp in ax.spines.values():
         sp.set_color(P["grid"]); sp.set_linewidth(1.0)
-    eo = {d: sn["svf"][d]["enclosed_minus_open"] for d, _ in DAYS}
-    note(ax, 0.012, 0.975,
-         "median UTCI, Q1 \u2212 Q5 (\u00b0C)\n"
-         f"IMBAT  street {sgn(eo['IMBAT']['street'], 2)} \u00b7 uniform {sgn(eo['IMBAT']['uniform'], 2)}\n"
-         f"CALM   street {sgn(eo['CALM']['street'], 2)} \u00b7 uniform {sgn(eo['CALM']['uniform'], 2)}")
     h = F5.day_legend_handles()
     for hh in h:
         hh.set_marker("s"); hh.set_markersize(6.5)
@@ -567,23 +550,15 @@ def build(qa_dir: Path | None = None):
     draw_diurnal(ax_t, ax_u, ds)
     diurnal_legend(ax_t)
     S.panel_label(ax_t, "B", fontsize=15.0, x=-0.17, y=1.13)
-    i15 = int(np.where(HOURS == 15)[0][0])
-    note(ax_u, 0.985, 0.05,
-         f"{len(tiles)} of {len(sub)} subset tiles \u00b7 {rp['nps']['IMBAT'][i15] / 1e6:.2f} M PS cells\n"
-         f"sunlit at 15: IMBAT {100 * ds[('IMBAT', 'utci', 'sunlit')]['share'][i15]:.0f} % \u00b7 "
-         f"CALM {100 * ds[('CALM', 'utci', 'sunlit')]['share'][i15]:.0f} %",
-         ha="right", va="bottom")
 
     y2 = BOT + XL2
-    wc, wcard = 4.30, 2.05
+    wc = 5.45
     ax_c = S.inch_axes(fig, L, y2, wc, H2)
     draw_ratio(ax_c, sd, sn, fsum["IMBAT"])
-    ax_c.text(0.5, -0.255, "H/W class (A8), n segments", transform=ax_c.transAxes, ha="center", va="top",
+    ax_c.text(0.5, -0.255, "H/W class, n segments", transform=ax_c.transAxes, ha="center", va="top",
               fontsize=10.08, color=P["ink"])
     S.panel_label(ax_c, "C", fontsize=15.0, x=-0.17, y=1.03)
-    ax_card = S.inch_axes(fig, L + wc + 0.18, y2 + 0.42, wcard, H2 - 0.42)
-    draw_vcard(ax_card, sn)
-    xd = L + wc + 0.18 + wcard + 1.12
+    xd = L + wc + 1.12
     ax_d = S.inch_axes(fig, xd, y2, FW - 0.22 - xd, H2)
     draw_svf(ax_d, sd, sn)
     S.panel_label(ax_d, "D", fontsize=15.0, x=-0.17, y=1.03)
@@ -593,7 +568,7 @@ def build(qa_dir: Path | None = None):
         stamp = fig.text((FW - 0.22) / FW, 0.06 / FH, f"DRAFT \u2014 partial run, {n_tiles}/{N_TILES_TOTAL} tiles",
                          ha="right", va="bottom", fontsize=7.0, color="#8A8580", zorder=1000)
         stamp._qa_exempt = False
-    panels = {"a": list(axs.values()), "b": [ax_t, ax_u], "c": [ax_c, ax_card], "d": [ax_d]}
+    panels = {"a": list(axs.values()), "b": [ax_t, ax_u], "c": [ax_c], "d": [ax_d]}
 
     # ------------------------------------------------------------------------------------- numbers for caption/report
     nums = dict(
@@ -616,7 +591,7 @@ def build(qa_dir: Path | None = None):
                   for day, _ in DAYS},
         n_tiles_extracted=n_tiles_ext, n_tiles_utci_both=n_utci_both, n_tiles_stamp=n_tiles, partial=partial,
         fig_size_in=[FW, round(FH, 3)])
-    return fig, panels, [ax_card], nums
+    return fig, panels, [], nums
 
 
 def main(argv=None):

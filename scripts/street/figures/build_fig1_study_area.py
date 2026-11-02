@@ -343,12 +343,12 @@ def plot_closeup(ax, tid, place, tiles_gdf, seg_gdf, lcz_arr, lcz_tr, inside_mas
     order = np.argsort(-cnts)
     tag = f"LCZ {LCZ_LABEL[klass]} ({100 * share:.0f} %)"
     if share < 0.60:   # mixed tile: the next two classes follow ('LCZ 8 (32 %); 2, 3'); full mix in the caption
-        tag += "; " + ", ".join(LCZ_LABEL[int(vals[i])] for i in order[1:3])
+        pass
     S.tile_tag(ax, tag, lcz_dark(klass), x=0.03, y=0.97)
     ax.texts[-1].get_bbox_patch().set_edgecolor(LCZ_COLORS[klass])
     ax.texts[-1].set_linespacing(1.25)
     add_tile_scale(ax, x0, y0)
-    S.tile_readout(ax, f"{place}  {tid}\nmedian h {stats['med_h']:.0f} m, canopy {100 * stats['canopy_share']:.0f} %",
+    S.tile_readout(ax, f"{place}, median height {stats['med_h']:.0f} m",
                    x=0.03, y=0.03)
     return stats
 
@@ -478,8 +478,6 @@ def main(variant="final"):
     ax_leg.legend_.set_title("Global LCZ (share of FUA area)")
     ax_leg.legend_.get_title().set_fontsize(8.5); ax_leg.legend_.get_title().set_fontweight("bold")
     ax_leg.legend_._legend_box.align = "left"
-    note_leg = S.stat_note(ax_leg, f"{len(tiles)} analysis tiles (1 km)\n{len(segs):,} street segments", x=0.0, y=0.20) or ax_leg.texts[-1]
-    note_leg.set_va("top")
 
     # ---- (b) wind roses: own row -----------------------------------------------------------------
     sets, n_clear = wind_tables()
@@ -522,11 +520,9 @@ def main(variant="final"):
     ax_k.add_artist(lg1)
     kh2 = [Patch(facecolor=P["teal_light"], edgecolor=P["teal_dark"], linewidth=0.7, linestyle=(0, (3, 2)),
                  label=f"sea-breeze sector\n{SB_LO:g}–{SB_HI:g}° (wind from)"),
-           Patch(facecolor="white", edgecolor=P["taupe"], linewidth=0.8, label="VRB: variable\nreports, count")]
+           Patch(facecolor="white", edgecolor=P["taupe"], linewidth=0.8, label="centre: reports with\nvariable direction")]
     lg2 = ax_k.legend(handles=kh2, loc="upper left", bbox_to_anchor=(0.0, 0.50), fontsize=8.0, frameon=False,
                 handlelength=1.3, handleheight=1.5, borderaxespad=0.0, labelspacing=0.5)
-    note_k = ax_k.text(0.0, 0.0, "LTBJ METAR, 14–17 h local;\n10° sectors, rings in %.",
-                       transform=ax_k.transAxes, fontsize=7.5, color=P["ink"], va="top", ha="left", linespacing=1.3)
 
     # ---- (c)-(e) close-ups -------------------------------------------------------------------
     y_row3 = BOTM
@@ -567,10 +563,8 @@ def main(variant="final"):
 
     def bottom_frac(ax, artist):
         return ax.transAxes.inverted().transform((0, artist.get_window_extent(rr).y0))[1]
-    note_leg.set_y(bottom_frac(ax_leg, ax_leg.get_legend()) - 0.15 / MAP_H)          # 0.15 in under the LCZ legend
     lg2.set_bbox_to_anchor((0.0, bottom_frac(ax_k, lg1) - 0.20 / ROW2_H), transform=ax_k.transAxes)
     fig.canvas.draw()
-    note_k.set_y(bottom_frac(ax_k, ax_k.get_legend()) - 0.12 / ROW2_H)                 # 0.12 in under the sector key
 
     ovl = text_overlap_qa(fig)
     sizes = [t.get_fontsize() for t in fig.findobj(mpl.text.Text)

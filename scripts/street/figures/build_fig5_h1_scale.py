@@ -448,7 +448,7 @@ def draw_raincloud(ax, day, date, seg, classes, lo, hi, top, show_ylabel, rng):
     else:
         ax.tick_params(axis="y", labelleft=False)
     n = int(len(df))
-    ax.text(0.012, 0.975, f"{day} \u00b7 {date} \u00b7 day median {seg['median']:.1f}\u00b0C \u00b7 n = {n:,}",
+    ax.text(0.012, 0.975, f"{day} \u00b7 median {seg['median']:.1f}\u00b0C",
             transform=ax.transAxes, ha="left", va="top", fontsize=7.2, fontweight="bold", color=P["ink"],
             bbox={"facecolor": "white", "edgecolor": P["taupe"], "boxstyle": "round,pad=0.25", "alpha": 0.95},
             zorder=10)
@@ -490,15 +490,11 @@ def draw_ladder(ax, res):
                 bbox=dict(facecolor="white", edgecolor="none", pad=0.6, alpha=0.85))
     ax.axvline(5.15, color=P["grid"], lw=1.0, ls=(0, (1, 2)), zorder=1)
     ax.set_xticks(list(range(len(LADDER_KEYS))) + [X_LMM, X_CV])
-    ax.set_xticklabels([lab for _, lab in LADDER_KEYS] + ["1 \u2212 within share\n(LMM)", "LCZ-only\nCV R\u00b2"])
+    ax.set_xticklabels([lab for _, lab in LADDER_KEYS] + ["Between-group\nshare", "LCZ-only\nCV R\u00b2"])
     ax.set_xlim(-0.5, X_CV + 0.62)
     ax.set_ylim(0.0, 1.0)
     ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
     ax.set_ylabel("Share of M1 variance explained")
-    ax.text(2.0, -0.215, "\u03b7\u00b2 of M1 by LCZ class, per unit", transform=ax.get_xaxis_transform(),
-            ha="center", va="top", fontsize=7.2, color=P["muted"])
-    ax.text((X_LMM + X_CV) / 2, -0.215, "H1 decision quantities", transform=ax.get_xaxis_transform(),
-            ha="center", va="top", fontsize=7.2, color=P["muted"])
     S.trend_axes_style(ax, first=True)                        # Fig 9 trend sub-row: taupe bottom/left, dashed y-grid
     ax.tick_params(axis="x", labelsize=9.24, colors=P["muted"], length=0)
     ax.tick_params(axis="y", labelsize=9.24, colors=P["muted"])
@@ -574,8 +570,8 @@ def build(rs: ResultSet):
 
     FW = S.V2_FIG_WIDTH_IN
     L, R, T = 1.02, 0.22, 0.52
-    A_H, A_XL, GAP_AB = 3.55, 1.20, 0.50
-    B_H, B_XL, BOT = 3.05, 0.95, 0.30
+    A_H, A_XL, GAP_AB = 3.55, 0.90, 0.50
+    B_H, B_XL, BOT = 2.70, 0.72, 0.15
     FH = T + A_H + A_XL + GAP_AB + B_H + B_XL + BOT
     fig = plt.figure(figsize=(FW, FH))
     fgap = 0.16
@@ -588,29 +584,20 @@ def build(rs: ResultSet):
     axA[1].sharey(axA[0])
     fig.text((L + fw + fgap / 2) / FW, (ya - 0.80) / FH, "LCZ class (number of segments)", ha="center", va="bottom",
              fontsize=10.08, color=P["ink"])
-    e = excl["IMBAT"]
-    fig.text((FW - R) / FW, (ya - 1.13) / FH,
-             f"not shown: pooled classes (< {cm.MIN_CLASS_N} segments) n = {e['pooled']:,}; LCZ no-data (A6) n = {e['a6']:,}",
-             ha="right", va="bottom", fontsize=6.6, color=P["muted"])
     S.panel_label(axA[0], "A", fontsize=15.0)
 
     yb = BOT + B_XL
-    B_W = 6.65
+    B_W = FW - L - R
     axB = S.inch_axes(fig, L, yb, B_W, B_H)
     draw_ladder(axB, res)
     S.panel_label(axB, "B", fontsize=15.0)
-    cx = L + B_W + 0.55
-    axC = S.inch_axes(fig, cx, yb + 0.05, FW - R - cx, B_H - 0.05)
-    draw_card(axC, res, ok_all, per)
-    S.panel_label(axC, "C", fontsize=15.0, y=1.025)
-
     label = res["IMBAT"]["label"]
     arts = stamp(fig, rs, label)
     meta = dict(classes_shown=classes, n_per_class=ns, excluded=excl, ylim=[float(lo), float(top)],
                 verdict_rule=ok_all, verdict_json=json_verdict, per_day=per, label=label,
                 day_median={d_: segs[d_]["median"] for d_, _ in DAYS})
-    panels = {"a": axA, "b": [axB], "c": [axC]}
-    return fig, meta, panels, [axC], arts
+    panels = {"a": axA, "b": [axB]}
+    return fig, meta, panels, [], arts
 
 
 def main(argv=None):

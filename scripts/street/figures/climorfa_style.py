@@ -617,6 +617,35 @@ def v2_fs(pt: float) -> float:
     return max(pt * TYPE_SCALE, MIN_AUTHOR_PT)
 
 
+PLAIN_RULES = [
+    (r"\bIMBAT\b", "Breezy"), (r"\bCALM\b", "Calm"),
+    (r"VRB \(Calm\)", "variable"), (r"\bVRB\b", "var."),
+    (r"\s*\(A\d+(-\d+)?\)", ""),
+    (r"\u0394M1", "\u0394UTCI"), (r"\bM1\b", "UTCI"), (r"\bM3\b", "T\u2098\u1d63\u209c"),
+    (r"M2\u2083\u2088", "hours \u2265 38\u00b0C"),
+    (r"\block:", "limit:"), (r"\(lock\)", "(limit)"), (r"H1 needs < ", "limit "),
+    (r"[Hh]our label", "Hour"), (r"\blabel (\d\d)\b", r"\1:00"),
+    (r"\s*T_\d{4}_\d{4}", ""),
+]
+
+
+def plain_text(fig: plt.Figure) -> None:
+    """Reader-facing wording on every figure: no internal codes, the same day names as the main text."""
+    import re as _re
+    for tx in fig.findobj(mpl.text.Text):
+        s = tx.get_text()
+        if not s or "$" in s:
+            continue
+        new = s
+        for a, b in PLAIN_RULES:
+            new = _re.sub(a, b, new)
+        if new != s:
+            tx.set_text(new)
+
+
+LETTER_PT = 16.0
+
+
 def scale_text(fig: plt.Figure) -> int:
     """Apply v2_fs to every Text artist in ``fig`` (ticks, legends, colourbars,
     annotations, panel letters).  Idempotent: marks scaled artists.  Returns
@@ -625,6 +654,7 @@ def scale_text(fig: plt.Figure) -> int:
     if abs(w - V2_FIG_WIDTH_IN) > 0.05:
         raise ValueError(f"v2 figures are authored at {V2_FIG_WIDTH_IN} in wide, got {w:.2f} in")
     fig.canvas.draw()  # materialise tick labels
+    plain_text(fig)
     n = 0
     # Tick labels are regenerated on redraw, so scale them through tick_params.
     for ax in fig.axes:
@@ -639,6 +669,9 @@ def scale_text(fig: plt.Figure) -> int:
                 n += 1
         ax._v2_ticks_scaled = True
     for t in fig.findobj(mpl.text.Text):
+        if len(t.get_text()) == 3 and t.get_text()[0] == "(" and t.get_text()[2] == ")" and t.get_text()[1].isalpha():
+            t.set_fontsize(LETTER_PT); t._v2_scaled = True
+            continue
         if getattr(t, "_v2_scaled", False) or not t.get_text():
             continue
         t.set_fontsize(v2_fs(t.get_fontsize()))
